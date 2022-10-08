@@ -36,16 +36,16 @@
                },
                {
                   "name" : "m_nbLoops",
-                  "caption" : "Number of Loops",
+                  "caption" : "Number of Iterations",
                   "value" : 2,
                   "type": "number",
                   "description" : "None"
                },
                {
                   "name" : "m_NeedToBeCropped",
-                  "caption" : "Need To be Cropped",
-                  "value" : 1,
-                  "type": "number",
+                  "caption" : "To Crop",
+                  "value" : true,
+                  "type": "checkbox",
                   "description" : "None"
                },
                {
@@ -54,36 +54,6 @@
                   "value": [50,50,50],
                   "type": "list",
                   "size": 3,
-                  "description" : "None"
-               },
-               {
-                  "name" : "m_RegType",
-                  "caption" : "Registration Template",
-                  "value" : 1,
-                  "type": "select",
-                  "candidates":[
-                    {
-                      "value" : 1,
-                      "caption" : "No Template Image",
-                      "description" : "Using the first image as reference in the first Registration Loop"
-                    },
-                    {
-                      "value" : 0,
-                      "caption" : "Use Template Image",
-                      "description" : "Use template image specified"
-                    }
-                  ],
-                  "description" : "None"
-               },     
-               {
-                  "name" : "m_TemplatePath",
-                  "caption" : "Template Path",
-                  "optional" : true,
-                  "if" : {
-                      "m_RegType" : 1
-                  },
-                  "value" : "",
-                  "type": "filepath-remote",
                   "description" : "None"
                },
                {
@@ -104,7 +74,25 @@
                       "description": "Nothing"
                     }
                   ]
+               },
+               {
+                  "name" : "m_RegType",
+                  "caption" : "Use the First Image as the Registration Template",
+                  "value" : true,
+                  "type": "checkbox",
+                  "description" : "If checked, use the first image as reference in the first Registration Loop"
+               },     
+               {
+                  "name" : "m_TemplatePath",
+                  "caption" : "Template Path",
+                  "if" : {
+                      "m_RegType" : false
+                  },
+                  "value" : "",
+                  "type": "filepath-remote",
+                  "description" : "None"
                }
+               
              ]
     },
     "diffeomorphic_atlas": {
@@ -252,25 +240,274 @@
           "caption" : "Final Resampling",
           "parameters":[
                {
+                  "name": "m_RegMethod",
+                  "caption": "Registration Method",
+                  "type" : "select",
+                  "value" : "ANTS",
+                  "description" : "NA",
+                  "candidates": [
+                       {
+                          "value" : "ANTS",
+                          "caption" : "ANTS",
+                          "description" : "None"
+                       },
+                       {
+                          "value" : "BRAINS",
+                          "caption" : "BRAINS",
+                          "description" : "None"
+                       }
+                  ]
+               },
+               {
+                  "name" : "m_DTIRegOptions_BRAINS",
+                  "caption": "DTIReg Options",
+                  "if" : { "m_RegMethod" : "BRAINS" },
+                  "value": ["BRAINS", "Diffeomorphic", "Use computed affine transform",5,"300,50,30,20,15"],
+                  "type": "component",
+                  "description" : "None",
+                  "components":{
+                    "caption" : "BRAINS Subparameters",
+                    "parameters" :[
+                            { 
+                                "name" : 0,
+                                "caption": "Registration Method",
+                                "type" : "label",
+                                "value" : "BRAINS",
+                                "hidden": true,
+                                "disabled": false,
+                                "description": "Fixed parameter"
+                            },
+                            {
+                                "name" : 1,
+                                "caption" : "Registration Type",
+                                "value" : "Diffeomorphic",
+                                "type" : "select",
+                                "description" : "Type of registration to apply",
+                                "candidates" : [
+                                        {
+                                          "value": "None",
+                                          "caption": "None",
+                                          "description": "None"
+                                        },
+                                        {
+                                          "value": "Rigid",
+                                          "caption": "Rigid",
+                                          "description": "Rigid"                        
+                                        },
+                                        {
+                                          "value": "BSpline",
+                                          "caption": "BSpline",
+                                          "description": "BSpline"                        
+                                        },
+                                        {
+                                          "value": "Diffeomorphic",
+                                          "caption": "Diffeomorphic",
+                                          "description": "Diffeomorphic"                        
+                                        },
+                                        {
+                                          "value": "Demons",
+                                          "caption": "Demons",
+                                          "description": "Demons"                        
+                                        },
+                                        {
+                                          "value": "FastSymmetricForces",
+                                          "caption": "FastSymmetricForces",
+                                          "description": "FastSymmetricForces"                        
+                                        }                                   
+                                ]
+                            },
+                            {
+                                "name": 2,
+                                "caption" : "Transform Mode",
+                                "value" : "Use computed affine transform",
+                                "type" : "select",
+                                "description" : "Transform mode",
+                                "candidates" : [
+                                        {
+                                          "value": "Off",
+                                          "caption": "Off",
+                                          "description": "Off"
+                                        },
+                                        {
+                                          "value": "UseMomentsAlign",
+                                          "caption": "UseMomentsAlign",
+                                          "description": "UseMomentsAlign"                        
+                                        },
+                                        {
+                                          "value": "useCenterOfHeadAlign",
+                                          "caption": "useCenterOfHeadAlign",
+                                          "description": "useCenterOfHeadAlign"                        
+                                        },
+                                        {
+                                          "value": "useGeometryAlign",
+                                          "caption": "useGeometryAlign",
+                                          "description": "useGeometryAlign"                        
+                                        },
+                                        {
+                                          "value": "Use computed affine transform",
+                                          "caption": "Use computed affine transform",
+                                          "description": "Use computed affine transform"                        
+                                        }                            
+                                ]
+                            },
+                            {
+                                    "name" : 3,
+                                    "caption" : "Number of Pyramid Levels",
+                                    "type" : "number",
+                                    "value" : 5,
+                                    "description" : "Number of pyramid levels"
+                            },
+                            {
+                                    "name" : 4,
+                                    "caption" : "Number of Pyramid Levels",
+                                    "type" : "string",
+                                    "value" : "300,50,30,20,15",
+                                    "description" : "Number of pyramid levels"
+                            }
+                    ]
+                  }
+               },
+               {
                   "name" : "m_DTIRegExtraPath",
                   "caption" : "ANTS Directory",
                   "value" : "",
+                  "if" :{
+                    "m_RegMethod" : "ANTS"
+                  },
                   "type": "filepath-remote",
                   "description" : "None"
                },  
                {
-                  "name" : "m_nbLoopsDTIReg",
-                  "caption" : "Number of Loops for DTIReg",
-                  "value" : 3,
-                  "type": "number",
-                  "description" : "None"
+                  "name" : "m_DTIRegOptions_ANTS",
+                  "caption": "DTIReg Options",
+                  "if" : { "m_RegMethod" : "ANTS" },
+                  "value": ["ANTS", "GreedyDiffeo (SyN)", "0.25", "100x50x25", "Cross-Correlation (CC)", "2","3",false],
+                  "type": "component",
+                  "description" : "None",
+                  "components":
+                  {
+                    "caption" : "ANTS Subparameters", 
+                    "parameters":[
+                                  { "name" : 0,
+                                    "caption": "Registration Method",
+                                    "type" : "label",
+                                    "value" : "ANTS",
+                                    "hidden": true,
+                                    "disabled": false,
+                                    "description" : "Fixed parameter"
+                                  },
+                                  {
+                                    "name": 1,
+                                    "caption": "Registration Type",
+                                    "type" : "select",
+                                    "value" : "GreedyDiffeo (SyN)",
+                                    "description" : "NA",
+                                    "disabled" : false,
+                                    "candidates": [
+                                        {
+                                          "value": "None",
+                                          "caption": "None",
+                                          "description": "NA"
+                                        },
+                                        {
+                                          "value": "Rigid",
+                                          "caption": "Rigid",
+                                          "description": "NA"                        
+                                        },
+                                        {
+                                          "value": "Elast",
+                                          "caption": "Elast",
+                                          "description": "NA"                        
+                                        },
+                                        {
+                                          "value": "Exp",
+                                          "caption": "Exp",
+                                          "description": "NA"                        
+                                        },
+                                        {
+                                          "value": "GreedyExp",
+                                          "caption": "GreedyExp",
+                                          "description": "NA"                        
+                                        },
+                                        {
+                                          "value": "GreedyDiffeo (SyN)",
+                                          "caption": "GreedyDiffeo (SyN)",
+                                          "description": "NA"                        
+                                        },
+                                        {
+                                          "value": "SpatioTempDiffeo (SyN)",
+                                          "caption": "SpatioTempDiffeo (SyN)",
+                                          "description": "NA"                        
+                                        }
+                                    ]
+                                  },
+                                  {
+                                    "name" : 2,
+                                    "caption" : "Transformation Step",
+                                    "type" : "number",
+                                    "value" : 0.25,
+                                    "description" : "NA"
+                                  },
+                                  {
+                                    "name" : 3,
+                                    "caption" : "Iterations",
+                                    "type" : "string",
+                                    "value" : "100x50x25",
+                                    "description" : "3 dimensional expression such as 100x50x25"
+                                  },
+                                  {
+                                    "name" : 4,
+                                    "caption" : "Similarity Metric",
+                                    "type" : "select",
+                                    "value" : "Cross-Correlation (CC)",
+                                    "description" : "Similarity Metric",
+                                    "candidates" : [
+                                        {
+                                          "value": "Cross-Correlation (CC)",
+                                          "caption": "Cross-Correlation (CC)",
+                                          "description": "Cross-Correlation"
+                                        },
+                                        {
+                                          "value": "Mutual Information (MI)",
+                                          "caption": "Mutual Information (MI)",
+                                          "description": "Mutual Information"
+                                        },{
+                                          "value": "Mean Square Difference (MSQ)",
+                                          "caption": "Mean Square Difference (MSQ)",
+                                          "description": "Mutual Mean Square Difference"
+                                        }
+                                    ]
+                                  },
+                                  {
+                                    "name" : 5,
+                                    "caption" : "Similarity Parameter",
+                                    "type" : "number",
+                                    "value" : 2.00,
+                                    "description" : "NA"
+                                  },
+                                  {
+                                    "name" : 6,
+                                    "caption" : "Gaussian Sigma",
+                                    "type" : "number",
+                                    "value" : 3.00,
+                                    "description" : "NA"
+                                  },
+                                  {
+                                    "name" : 7,
+                                    "caption" : "Gaussian Smoothing Off",
+                                    "type" : "checkbox",
+                                    "value" : false,
+                                    "description" : "NA"
+                                  }
+                              ]
+                  }
                },
                {
-                  "name" : "m_DTIRegOptions",
-                  "caption": "DTIReg Options",
-                  "value": ["ANTS", "GreedyDiffeo (SyN)", "0.25", "100x50x25", "Cross-Correlation (CC)", "2","3","0"],
-                  "type": "list",
-                  "size": null, 
+                  "name" : "m_nbLoopsDTIReg",
+                  "caption" : "Number of interations with DTIReg",
+                  "value" : 3,
+                  "type": "number",
+                  "disabled": false,
                   "description" : "None"
                }
           ]
@@ -278,12 +515,11 @@
     "execution": {
           "caption" : "Affine Atlas",
           "parameters":[
-
                {
-                  "name" : "m_useGridProcess",
-                  "caption" : "Use Grid Processing",
-                  "value" : false,
-                  "type": "checkbox",
+                  "name" : "m_OutputPath",
+                  "caption" : "Output Path",
+                  "value" : "",
+                  "type": "filepath-remote",
                   "description" : "None"
                },
                {
@@ -293,19 +529,11 @@
                   "type": "number",
                   "description" : "None"
                },
-
-               {
-                  "name" : "m_OutputPath",
-                  "caption" : "Output Path",
-                  "value" : "",
-                  "type": "filepath-remote",
-                  "description" : "None"
-               },
                {
                   "name" : "m_Overwrite",
                   "caption" : "Overwrite",
-                  "value" : 1,
-                  "type": "number",
+                  "value" : true,
+                  "type": "checkbox",
                   "description" : "None"
                },
                {
@@ -315,11 +543,20 @@
                   "type": "filepath-remote",
                   "description" : "None"
                },
-
+               {
+                  "name" : "m_useGridProcess",
+                  "caption" : "Use Grid Processing",
+                  "value" : false,
+                  "type": "checkbox",
+                  "description" : "None"
+               },
                {
                   "name" : "m_GridAtlasCommand",
                   "caption" : "Grid Atlas Command (optional)",
                   "value" : "",
+                  "if": {
+                    "m_useGridProcess" : true
+                  },
                   "optional": true,
                   "type": "string",
                   "description" : "None"
@@ -328,6 +565,9 @@
                   "name" : "m_GridGeneralCommand",
                   "caption" : "Grid General Computing Command (optional)",
                   "value" : "",
+                  "if": {
+                    "m_useGridProcess" : true
+                  },
                   "optional" : true,
                   "type": "string",
                   "description" : "None"

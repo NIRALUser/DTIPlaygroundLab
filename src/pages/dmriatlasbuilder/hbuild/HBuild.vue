@@ -5,10 +5,10 @@
     <div class="row toolbar">
       <div>
         <p> DMRI AtlasBuilder HBuild Generator </p>
-          <q-btn  color="primary" @click="newNodes">New HBuild</q-btn >
-          <q-btn color="secondary" @click="loadNodes">Open HBuild</q-btn >
+          <q-btn color="primary" @click="newTree">New HBuild</q-btn >
+          <q-btn color="secondary" @click="loadTree">Open HBuild</q-btn >
           <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
-          <q-btn color="warning" @click="saveNodes">Save HBuild</q-btn >
+          <q-btn color="warning" @click="saveTree">Save HBuild</q-btn >
       </div>
     </div>
     <div class="row">
@@ -65,7 +65,7 @@
 
 <script lang="ts">
 
-import { defineComponent, onMounted, watch, watchEffect, ref} from 'vue';
+import { defineComponent, onMounted, watch, watchEffect, ref, reactive} from 'vue';
 import { useClientStore } from 'src/stores';
 import lodash from 'lodash';
 import { download, getUUID } from 'src/utils';
@@ -90,8 +90,8 @@ const sampletree = [
 export default defineComponent({
   props: {
     modelValue: {
-      type: Object,
-      default: {}
+      type: Array,
+      default: []
     }
   },
   components: {  
@@ -102,12 +102,11 @@ export default defineComponent({
 
   setup (props, ctx) {
     const client_store = useClientStore();
-    const inputs = ref<any>({});
     const selectedNode = ref<any>(null);
     const selectedFiles = ref<any[]>([]);
     const localFile = ref<any>(null);
     const newname = ref<string | null>(null);
-    const nodes = ref<any[]>(sampletree);
+    const nodes = reactive<any[]>(sampletree);
     const currentNode = ref<any>(null);
     const fileDialog = ref(null);
     const promptDialog = ref(null)
@@ -118,15 +117,15 @@ export default defineComponent({
     function onDev(ev) {
       // console.log(parameters.value);
     }
-    async function openNodes(file) {
+    async function openTreeFile(file) {
       // console.log(file);
       if (!file) return;
       const reader = new FileReader();
       reader.addEventListener('load', (ev) => {
         const hbuild = JSON.parse(ev.target.result);
-        nodes.value = [qtreeFromHbuild(hbuild)];
+        nodes[0] = qtreeFromHbuild(hbuild);
         localFile.value = null;
-        currentNode.value = nodes.value[0];
+        currentNode.value = nodes[0];
       });
       await reader.readAsText(file);
     }
@@ -148,7 +147,7 @@ export default defineComponent({
           children: [],
       };
       // console.log(newNode);
-      if (isUniqueNode(nodes.value[0], newNode)) {
+      if (isUniqueNode(nodes[0], newNode)) {
         node.children.push(newNode)        
       }
     }
@@ -167,24 +166,22 @@ export default defineComponent({
       // console.log(parent_node);
       parent_node.children = parent_node.children.filter((x) => x !== node)
     }
-    function newNodes(ev) {
-      nodes.value = [{
+    function newTree(ev) {
+      nodes[0] =    {
                       id: 'root',
                       parent_id: null,
                       label: 'FinalAtlas',
-                      // icon: "codes",
-                      // avatar: 'https://cdn.quasar.dev/img/boy-avatar.png',
                       files: [],
                       is_root: true,
                       children: []
-                    }];
-      currentNode.value = nodes.value[0];
+                    };
+      currentNode.value = nodes[0];
     }
-    function loadNodes(ev) {
+    function loadTree(ev) {
       fileInput.value.$el.click();
     }
-    function saveNodes(ev) {
-      const tree = hbuildFromQtree(nodes.value[0]);
+    function saveTree(ev) {
+      const tree = hbuildFromQtree(nodes[0]);
       const hbuild = JSON.stringify(tree, null, 2);
       download("hbuild.json",hbuild);
     }
@@ -193,21 +190,20 @@ export default defineComponent({
       const node = dataQTree.value.getNodeByKey(id);
       node.files = node.files.filter((x) => x !== file );
     }
-    function onChanged(ev) {
-      // console.log(parameters.value);
-      ctx.emit('update:modelValue', inputs.value);
-    }
+
     watch(nodes, (nv, ov) => {
-      const text = JSON.stringify(nodes.value, null, 2);
-      localStorage.setItem('qTree', text);
+      const text = JSON.stringify(nodes, null, 2);
+      localStorage.setItem('dtiab-tree', text);
+      ctx.emit('update:modelValue', nodes);
+      ctx.emit('changed-param', nodes);
     });
     watch(localFile, (nv, ov) => {
       if (!localFile.value) return;
       // console.log(nv);
-      openNodes(nv[0]);
+      openTreeFile(nv[0]);
     });
     watch(newname, (nv, ov) => {
-      if (isUniqueLabel(nodes.value[0],nv)) {
+      if (isUniqueLabel(nodes[0],nv)) {
         currentNode.value.label = nv;
       } else {
         console.log("Not unique label");
@@ -222,13 +218,11 @@ export default defineComponent({
       if (!nv) selectedNode.value = ov;
       currentNode.value = dataQTree.value.getNodeByKey(selectedNode.value);
     });
-    watchEffect(() => {
-    });
     onMounted(async () => {
-      const cachedNodes = localStorage.getItem('qTree');
+      const cachedNodes = localStorage.getItem('dtiab-tree');
       if (cachedNodes) {
         const parsed = JSON.parse(cachedNodes);
-        nodes.value = parsed;
+        nodes[0] = parsed[0];
       }
     });
     return {
@@ -237,13 +231,11 @@ export default defineComponent({
       currentNode,
       selectedFiles,
       newname,
-      inputs,
       onDev,
-      onChanged,
-      openNodes,
-      loadNodes,
-      saveNodes,
-      newNodes,
+      openTreeFile,
+      loadTree,
+      saveTree,
+      newTree,
       fileDialog,
       dataQTree,
       promptDialog,

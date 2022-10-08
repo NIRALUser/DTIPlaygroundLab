@@ -133,3 +133,15 @@ export function download(filename: string, text: string) {
 
   document.body.removeChild(element);
 }
+
+export function conditionCheck(parameters: any, conditionDict: any) {
+  if (!conditionDict) return true;
+  let res = true;
+  const condition_keys = lodash.keys(conditionDict);
+  lodash.forEach(condition_keys, (k: string) => {
+       if (conditionDict[k] !== parameters[k]) {
+         res=false;
+       }
+  }); 
+  return res;
+}
