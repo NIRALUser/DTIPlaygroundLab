@@ -4,10 +4,11 @@ import { createPinia } from 'pinia'
 import { Router } from 'vue-router';
 import Client from 'src/api/client';
 import { SERVER_URL } from 'src/environments';
+import { useQuasar } from 'quasar';
 
 export const useClientStore = defineStore('apiClient', {
   state: () => ({
-    client : Client.Create(SERVER_URL )
+    client : Client.Create(SERVER_URL, useQuasar())
   }),
   getters: {
     getClient(state) {
@@ -15,6 +16,7 @@ export const useClientStore = defineStore('apiClient', {
     }
   }
 });
+
 /*
  * When adding new properties to stores, you should also
  * extend the `PiniaCustomProperties` interface.

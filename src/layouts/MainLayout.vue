@@ -61,19 +61,19 @@ const linksList = [
   {
     title: 'DMRI Prep ',
     caption: 'Pipelined QC processor',
-    icon: 'code',
+    icon: 'visibility',
     link: '#/dmriprep'
   },
   {
     title: 'DMRI Atlas Builder',
     caption: 'Register and average diffusion tensor images',
-    icon: 'code',
+    icon: 'build',
     link: '#/dmriatlasbuilder'
   },
   {
     title: 'About',
     caption: 'About DTI Playground',
-    icon: 'code',
+    icon: 'question_mark',
     link: '#/about'
   },
 ];

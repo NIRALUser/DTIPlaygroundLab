@@ -1,26 +1,30 @@
 
 <template>
-  <div class="noselect">
-    <p class="truncate"> Current Directory : {{ currentRoot }}</p>
-    <ul class="">
-      <div v-for="file in files" :key="file.path">
-       <template v-if="file.is_dir">
-           <div @click="changeRoot(file.path)" class="truncate hover">
-               <q-icon name="folder" color="orange"/>
-               <a  class='overflow-hidden'>{{ file.name }}</a>
-           </div>
-       </template>
-       <template v-else>
-          <div @click.ctrl = "addSelection($event,file)" 
-               @click.shift = "addSelectionUntil($event,file)"
-               @click.left.exact = "onFileSelected($event,file)" 
-               :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
-            <q-icon name="description" color="green"/>
-            <a >{{ file.name }}</a>
+  <div class="noselect q-pa-md">
+    <div class="col">
+        Current Directory : {{ currentRoot }}
+    </div>
+    <div>
+        <div class="truncate row"> 
+          <div class="col-md-3 col-sm-6 col-xs-12" v-for="file in files" :key="file.path">
+           <template v-if="file.is_dir">
+               <div @click="changeRoot(file.path)" class="truncate hover">
+                   <q-icon name="folder" color="orange"/>
+                   <a  class='overflow-hidden'>{{ file.name }}</a>
+               </div>
+           </template>
+           <template v-else>
+              <div @click.ctrl = "addSelection($event,file)" 
+                   @click.shift = "addSelectionUntil($event,file)"
+                   @click.left.exact = "onFileSelected($event,file)" 
+                   :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
+                <q-icon name="description" color="green"/>
+                <a >{{ file.name }}</a>
+              </div>
+           </template>
           </div>
-       </template>
-      </div>
-    </ul>
+        </div>
+    </div>
   </div>
 </template>
 
@@ -84,6 +88,7 @@ export default defineComponent({
         selectedFiles.value.push(file);
       }
     }
+
     watch(selectedFiles, (n,o) => {
       ctx.emit('update:modelValue', selectedFiles.value);
     });

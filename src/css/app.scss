@@ -15,3 +15,30 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.file-dialog-header {
+  
+}
+.file-dialog {
+  min-width: max(350px,80%);
+  max-width: 80%;
+  max-height: 80%;
+  min-height: 80%;
+}
+
+.file-navigator {
+  min-height: 100%;
+  hight: 100%;
+}
+.file-navigator-header {
+  width: 100%;
+  max-height: 10%;
+}
+.file-navigator-body {
+  width: 100%;
+  min-height: 80%;
+}
+.file-navigator-footer {
+  width: 100%;
+  max-height: 10%;
+}

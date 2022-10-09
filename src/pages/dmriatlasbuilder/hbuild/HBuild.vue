@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <PromptDialog ref="promptDialog" v-model="newname"/>
-    <RemoteFileSelectDialog ref="fileDialog" v-model="selectedFiles"/>
+    <RemoteFileSelectDialog ref="fileDialog" root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
     <div class="row toolbar">
       <div>
         <p> DMRI AtlasBuilder HBuild Generator </p>
@@ -71,21 +71,9 @@ import lodash from 'lodash';
 import { download, getUUID } from 'src/utils';
 import RemoteFileSelectDialog from 'src/components/RemoteFileSelectDialog.vue';
 import PromptDialog from 'src/components/PromptDialog.vue';
-import { flattenQtree, generateFromRoot, hbuildFromFlatTree, hbuildFromQtree, qtreeFromHbuild, isUniqueId, isUniqueLabel, isUniqueNode } from './treeconvert';
+import { flattenQtree, generateFromRoot, hbuildFromFlatTree, hbuildFromQtree, qtreeFromHbuild, isUniqueId, isUniqueLabel, isUniqueNode } from '../convert';
 import HBuildFiles from './HBuildFiles.vue';
-
-const sampletree = [
-        {
-          id: 'root',
-          parent_id: null,
-          label: 'FinalAtlas',
-          // icon: "codes",
-          // avatar: 'https://cdn.quasar.dev/img/boy-avatar.png',
-          files: [],
-          is_root: true,
-          children: []
-        }
-];
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   props: {
@@ -106,13 +94,21 @@ export default defineComponent({
     const selectedFiles = ref<any[]>([]);
     const localFile = ref<any>(null);
     const newname = ref<string | null>(null);
-    const nodes = reactive<any[]>(sampletree);
+    const nodes = reactive<any[]>([{
+                                      id: 'root',
+                                      parent_id: null,
+                                      label: 'FinalAtlas',
+                                      files: [],
+                                      is_root: true,
+                                      children: []
+                                  }]);
     const currentNode = ref<any>(null);
     const fileDialog = ref(null);
     const promptDialog = ref(null)
     const dataQTree = ref(null);
     const fileInput = ref(null);
     const nodeFiles = ref<any[]>([]);
+    const $q = useQuasar();
 
     function onDev(ev) {
       // console.log(parameters.value);
@@ -155,8 +151,7 @@ export default defineComponent({
       // console.log(`Renaming ${node.id}`);
       // console.log(node);
       currentNode.value = node;
-      newname.value = node.label;
-      promptDialog.value.openModal(newname.value);
+      promptDialog.value.openModal(node.label);
     }
     function onDeleteNode(node) {
       // console.log(`Deleting ${node.id}`);
@@ -203,10 +198,19 @@ export default defineComponent({
       openTreeFile(nv[0]);
     });
     watch(newname, (nv, ov) => {
-      if (isUniqueLabel(nodes[0],nv)) {
-        currentNode.value.label = nv;
-      } else {
-        console.log("Not unique label");
+      if (nv !== ov) {
+        if (isUniqueLabel(nodes[0],nv)) {
+          currentNode.value.label = nv;
+          $q.notify({
+            message : 'Name changed',
+            color: 'green'
+          })
+        } else {
+          $q.notify({
+            message : 'Not unique label',
+            color: 'red'
+          })
+        }        
       }
     });
     watch(selectedFiles, (nv, ov) => {
@@ -223,6 +227,8 @@ export default defineComponent({
       if (cachedNodes) {
         const parsed = JSON.parse(cachedNodes);
         nodes[0] = parsed[0];
+      } else {
+        newTree();
       }
     });
     return {

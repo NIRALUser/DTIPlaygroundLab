@@ -44,7 +44,7 @@
                {
                   "name" : "m_NeedToBeCropped",
                   "caption" : "To Crop",
-                  "value" : true,
+                  "value" : false,
                   "type": "checkbox",
                   "description" : "None"
                },

@@ -9,6 +9,7 @@
     "dev": "quasar dev",
     "build": "quasar build",
     "build:pwa": "quasar build -m pwa",
+    "deploy" : "./deploy.sh",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {

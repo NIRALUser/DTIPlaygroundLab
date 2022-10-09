@@ -1,7 +1,6 @@
 /* eslint-disable lines-between-class-members */
 /* eslint-disable no-underscore-dangle */
 import axios from 'axios';
-// import {} from '@/types';
 
 export default class Client {
   public axios;
@@ -21,13 +20,24 @@ export default class Client {
     return client;
   }
 
-  constructor(serverURL: string) {
+  constructor(serverURL: string, store: any) {
 
     this.axios = axios.create({
       baseURL: serverURL,
       headers: { common: { } },
     });
     this.serverURL = serverURL;
+    this.axios.interceptors.request.use(function (request) {
+      return request;
+    });
+    this.axios.interceptors.response.use(function (response) {
+      // if (process.env.DEV) 
+      console.log('Response', response);
+      return response;
+    }, function(error) {
+      console.log("Error!",error.response.data);
+      return Promise.reject(error);
+    });
   }
 
   async initAsync() {
@@ -36,14 +46,29 @@ export default class Client {
 
   // API Check
   async checkVersion(): Promise<any> {
-    const resp = await this.axios.get('/api/v1/version');
-    return resp.data;
+    return this.axios.get('/api/v1/version').then((r) => {
+      return r.data;
+    }).catch((e) => {
+      throw e;
+    });
   }
 
   // API file browser
   async listFiles(rootdir: string): Promise<any[]> {
     const payload = { params: { root_dir: rootdir }}
-    const resp = await this.axios.get('/api/v1/files', payload);
-    return resp.data;
+    return this.axios.get('/api/v1/files', payload).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });
+  }
+
+  // DMRIAtlasbuilder
+  async DMRIAtlasbuilder_generateOutputDirectory(payload: any): Promise<any> {
+    return this.axios.post('/api/v1/dmriatlasbuilder/parameters', payload).then((response) => {
+      return response.data;
+    }).catch((error) => {
+      throw error
+    });
   }
 }

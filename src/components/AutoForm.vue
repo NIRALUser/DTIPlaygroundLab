@@ -8,6 +8,9 @@
                           <div class="col-12">
                             <q-input  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
                           </div>
+                          <q-tooltip>
+                            {{ param.description }}
+                          </q-tooltip>
                       </div>
                     </template>
                     <template v-else-if="param.type === 'string'">
@@ -15,6 +18,9 @@
                           <div class="col-12">
                             <q-input dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
+                          <q-tooltip>
+                            {{ param.description }}
+                          </q-tooltip>
                       </div>
                     </template>
                     <template v-else-if="param.type === 'select'">
@@ -22,12 +28,18 @@
                         <div class="col-12">
                            <q-select dense :label="param.caption" :options="param.candidates.map((x) => x.value)" v-model="parameters.val[param.name]"/>
                         </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
                       </div>
                     </template>
                     <template v-else-if="param.type === 'checkbox'">
                         <div class="col-12">
                            <q-checkbox v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
                     </template>
                     <template v-else-if="param.type === 'component'">
                      <div class="row">
@@ -41,6 +53,9 @@
                         <div class="col-12">
                            <RemoteFileInput v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
                       </div>                   
                     </template>
                     <template v-else>
@@ -48,6 +63,9 @@
                           <div class="col-12">
                             <q-input dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
                           </div>
+                          <q-tooltip>
+                            {{ param.description }}
+                          </q-tooltip>
                       </div>
                     </template>
               </div>
@@ -88,7 +106,6 @@ export default defineComponent({
       console.log(parameters.val);
     }
     onMounted(async () => {
-      console.log('Mounted');
       // const pairs = props.template.parameters.map((x) => ([x.name, x.value]));
       // parameters.val = lodash.fromPairs(pairs);     
       parameters.val = props.modelValue;

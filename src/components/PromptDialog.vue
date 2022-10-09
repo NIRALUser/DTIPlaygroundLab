@@ -13,9 +13,6 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <div>
-   
-  </div>
 </template>
 
 <script lang="ts">
