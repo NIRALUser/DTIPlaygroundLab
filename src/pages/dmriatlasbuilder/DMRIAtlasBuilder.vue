@@ -206,7 +206,7 @@ export default defineComponent({
         running.value = false
         setTimeout(() => {
           detachLogfile();
-        },5000);
+        },10000);
       }
     }
     async function attachLogfile() {
