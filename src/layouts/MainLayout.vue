@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://github.com/niraluser/dtiplayground">DTI Playground</q-item>
+          <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://github.com/niraluser/dtiplayground">{{ APP_TITLE }}</q-item>
         </q-toolbar-title>
 
         <div> <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://www.med.unc.edu/psych/research/niral/">NIRAL</q-item> </div>
@@ -50,6 +50,8 @@ import { ref } from 'vue';
 import store from '../stores';
 import Router from '../router';
 import BaseMenu from 'components/BaseMenu.vue';
+import { APP_TITLE } from 'src/environments.ts';
+import { useQuasar } from 'quasar';
 
 const linksList = [
   {
@@ -83,16 +85,19 @@ export default defineComponent({
   components: { BaseMenu },
   setup (props, ctx) {
     const leftDrawerOpen = ref(false);
+    const $q = useQuasar();
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
     }
     onMounted(async () => {
+      $q.notify({ message : "Welcome to DTI Playground", color: "green", timeout: 1000});
     });
     return {
       essentialLinks: linksList,
       leftDrawerOpen,
       toggleLeftDrawer,
       Router,
+      APP_TITLE,
     };
   }
 });

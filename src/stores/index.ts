@@ -8,15 +8,46 @@ import { useQuasar } from 'quasar';
 
 export const useClientStore = defineStore('apiClient', {
   state: () => ({
-    client : Client.Create(SERVER_URL, useQuasar())
+    _client : Client.Create(SERVER_URL)
   }),
   getters: {
+    client(state) {
+      return state._client;
+    },
     getClient(state) {
-      return state.client;
+      return state._client;
     }
   }
 });
 
+export const useUserData = defineStore('userData', {
+  state: () => ({
+     global : {},
+     dmriatlasbuilder : {},
+     dmriprep: {}
+  }),
+  getters: {},
+  actions: {}
+});
+
+export const useInterval = defineStore('timeInterval', {
+  state: () => ({
+    _intervals : {}
+  }),
+  getters: {
+    intervals(state) {
+      return state._intervals
+    }
+  },
+  actions: {
+    addInterval(id: string, fn, interval: number) {
+      this._intervals[id] = setInterval(fn, interval);
+    },
+    removeInterval(id) {
+      clearInterval(this._intervals[id]);
+    }
+  }
+});
 /*
  * When adding new properties to stores, you should also
  * extend the `PiniaCustomProperties` interface.

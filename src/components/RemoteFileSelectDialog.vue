@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="q-pt-none col-10">
-                     <RemoteFileNavigator :root="rootDir.val" v-model="selectedFiles"/>
+                     <RemoteFileNavigator :root="rootDir.val" :directory="directory" :multiple="multiple" v-model="selectedFiles"/>
                 </div>
               </div>
       </div>
@@ -35,6 +35,16 @@ export default defineComponent({
       type: Array,
       required: false,
       default: []
+    },
+    multiple: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    directory: {
+      type: Boolean,
+      required: false,
+      default: false,      
     }
   },
   components: { RemoteFileNavigator  },

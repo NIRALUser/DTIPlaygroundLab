@@ -8,7 +8,12 @@
         <div class="truncate row"> 
           <div class="col-md-3 col-sm-6 col-xs-12" v-for="file in files" :key="file.path">
            <template v-if="file.is_dir">
-               <div @click="changeRoot(file.path)" class="truncate hover">
+               <div @click="addSelection($event, file)"
+                    @click.ctrl = "addSelection($event,file)" 
+                    @click.shift = "addSelectionUntil($event,file)"
+                    @click.left.exact = "onFileSelected($event,file)"  
+                    @dblclick="changeRoot(file.path)"
+                    :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
                    <q-icon name="folder" color="orange"/>
                    <a  class='overflow-hidden'>{{ file.name }}</a>
                </div>
@@ -49,12 +54,21 @@ export default defineComponent({
       type: String,
       required: false,
       default: '/home/scalphunter/Downloads',
+    },
+    multiple: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    directory: {
+      type: Boolean,
+      required: false,
+      default: false,
     }
   },
   components: {  },
   setup (props, ctx) {
-    const client_store = useClientStore();
-    const client = ref<any>(null);
+    const $c = useClientStore();
     const files = ref<any[]>([]);
     const currentRoot = ref<string>(props.root);
     const selectedFiles = ref<any[]>([]);
@@ -62,20 +76,29 @@ export default defineComponent({
     async function changeRoot (rootdir) {
       files.value = [];
       selectedFiles.value = [];
-      client.value = await client_store.getClient;
+      const client = await $c.client;
       currentRoot.value = rootdir;
-      const resp = await client.value.listFiles(currentRoot.value);
+      const resp = await client.listFiles(currentRoot.value);
       files.value = resp.data;
     }
     function onFileSelected (ev, file) {
       selectedFiles.value = [];
+      if (!props.directory && file.is_dir) return;
+      if (props.directory && !file.is_dir) return;
+      if (!file.is_real) return;
+
       selectedFiles.value.push(file);
     }
     function addSelection(ev, file) {
+      if (!props.multiple) return
+      if (!props.directory && file.is_dir) return;
+      if (!file.is_real) return;
       selectedFiles.value.push(file);
     }
     function addSelectionUntil(ev, file) {
+      if (!props.multiple) return;
       ev.preventDefault();
+      let flist = []
       if (selectedFiles.value.length > 0) {
         const previousIndex = files.value.indexOf(selectedFiles.value[selectedFiles.value.length -1]);
         const currentIndex = files.value.indexOf(file);
@@ -83,18 +106,22 @@ export default defineComponent({
         let maxIdx = Math.max (previousIndex, currentIndex);
         if (previousIndex < currentIndex) maxIdx = maxIdx + 1;
         const slice = files.value.slice(minIdx, maxIdx);
-        selectedFiles.value = lodash.uniq(selectedFiles.value.concat(slice));
+        flist = lodash.uniq(selectedFiles.value.concat(slice));
       } else {
-        selectedFiles.value.push(file);
+        flist.push(file);
       }
+      if (!props.directory) {
+        flist = flist.filter((x) => !x.is_dir && x.is_real);
+      }
+      selectedFiles.value = flist;
     }
 
     watch(selectedFiles, (n,o) => {
       ctx.emit('update:modelValue', selectedFiles.value);
     });
     onMounted(async () => {
-      client.value = await client_store.getClient;
-      const resp = await client.value.listFiles(props.root);
+      const client= await $c.client;
+      const resp = await client.listFiles(props.root);
       files.value = resp.data;
     });
     return {

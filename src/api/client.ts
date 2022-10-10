@@ -32,10 +32,10 @@ export default class Client {
     });
     this.axios.interceptors.response.use(function (response) {
       // if (process.env.DEV) 
-      console.log('Response', response);
+      // console.log('Response', response);
       return response;
     }, function(error) {
-      console.log("Error!",error.response.data);
+      // console.log("Error!",error.response.data);
       return Promise.reject(error);
     });
   }
@@ -62,10 +62,25 @@ export default class Client {
       throw e;
     });
   }
-
+  async getTextFileContent(path: string, last_line: number): Promise<any> {
+    const payload = { params: { path, last_line }};
+    return this.axios.get('/api/v1/files/get-text', payload).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });    
+  }
   // DMRIAtlasbuilder
   async DMRIAtlasbuilder_generateOutputDirectory(payload: any): Promise<any> {
     return this.axios.post('/api/v1/dmriatlasbuilder/parameters', payload).then((response) => {
+      return response.data;
+    }).catch((error) => {
+      throw error
+    });
+  }
+
+  async DMRIAtlasbuilder_execute(payload: any): Promise<any> {
+    return this.axios.post('/api/v1/dmriatlasbuilder', payload).then((response) => {
       return response.data;
     }).catch((error) => {
       throw error

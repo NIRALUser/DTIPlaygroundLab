@@ -519,7 +519,7 @@
                   "name" : "m_OutputPath",
                   "caption" : "Output Path",
                   "value" : "",
-                  "type": "filepath-remote",
+                  "type": "dirpath-remote",
                   "description" : "None"
                },
                {

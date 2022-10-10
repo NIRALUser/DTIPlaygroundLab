@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <PromptDialog ref="promptDialog" v-model="newname"/>
-    <RemoteFileSelectDialog ref="fileDialog" root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
+    <RemoteFileSelectDialog ref="fileDialog" multiple root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
     <div class="row toolbar">
       <div>
         <p> DMRI AtlasBuilder HBuild Generator </p>
@@ -188,9 +188,9 @@ export default defineComponent({
 
     watch(nodes, (nv, ov) => {
       const text = JSON.stringify(nodes, null, 2);
-      localStorage.setItem('dtiab-tree', text);
       ctx.emit('update:modelValue', nodes);
       ctx.emit('changed-param', nodes);
+      // localStorage.setItem('dtiab-tree', text);
     });
     watch(localFile, (nv, ov) => {
       if (!localFile.value) return;
@@ -223,10 +223,16 @@ export default defineComponent({
       currentNode.value = dataQTree.value.getNodeByKey(selectedNode.value);
     });
     onMounted(async () => {
-      const cachedNodes = localStorage.getItem('dtiab-tree');
-      if (cachedNodes) {
-        const parsed = JSON.parse(cachedNodes);
-        nodes[0] = parsed[0];
+      // const cachedNodes = localStorage.getItem('dtiab-tree');
+      // if (cachedNodes) {
+      //   const parsed = JSON.parse(cachedNodes);
+      //   nodes[0] = parsed[0];
+      // } else {
+      //   newTree();
+      // }
+      console.log(props.modelValue);
+      if (props.modelValue.length > 0) {
+        nodes[0] = props.modelValue[0];
       } else {
         newTree();
       }

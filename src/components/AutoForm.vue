@@ -6,17 +6,17 @@
                     <template v-if="param.type === 'number'">
                       <div class="row">
                           <div class="col-12">
-                            <q-input  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable"  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
                           </q-tooltip>
                       </div>
                     </template>
-                    <template v-else-if="param.type === 'string'">
+                    <template :disable="disable" v-else-if="param.type === 'string'">
                       <div class="row">
                           <div class="col-12">
-                            <q-input dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
@@ -26,16 +26,16 @@
                     <template v-else-if="param.type === 'select'">
                       <div class="row">
                         <div class="col-12">
-                           <q-select dense :label="param.caption" :options="param.candidates.map((x) => x.value)" v-model="parameters.val[param.name]"/>
+                           <q-select :disable="disable" dense :label="param.caption" :options="param.candidates.map((x) => x.value)" v-model="parameters.val[param.name]"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
                         </q-tooltip>
                       </div>
                     </template>
-                    <template v-else-if="param.type === 'checkbox'">
+                    <template  v-else-if="param.type === 'checkbox'">
                         <div class="col-12">
-                           <q-checkbox v-model="parameters.val[param.name]" :label="param.caption"/>
+                           <q-checkbox :disable="disable" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -44,24 +44,34 @@
                     <template v-else-if="param.type === 'component'">
                      <div class="row">
                         <div class="col-12">
-                           <AutoForm v-model="parameters.val[param.name]" :template="param.components"/>
+                           <AutoForm :disable="disable" v-model="parameters.val[param.name]" :template="param.components"/>
                         </div>
                       </div>                   
                     </template>
                     <template v-else-if="param.type === 'filepath-remote'">
                        <div class="row">
                         <div class="col-12">
-                           <RemoteFileInput v-model="parameters.val[param.name]" :label="param.caption"/>
+                           <RemoteFileInput :disable="disable" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
                         </q-tooltip>
-                      </div>                   
+                      </div>
+                    </template>
+                    <template v-else-if="param.type === 'dirpath-remote'">
+                       <div class="row">
+                        <div class="col-12">
+                           <RemoteFileInput :disable="disable" v-model="parameters.val[param.name]" directory :label="param.caption"/>
+                        </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
+                    </div>                       
                     </template>
                     <template v-else>
                       <div class="row">
                           <div class="col-12">
-                            <q-input dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable" dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
@@ -90,7 +100,11 @@ export default defineComponent({
     template : {
       type: Object,
       default: {}
-    } 
+    },
+    disable : {
+      type: Boolean,
+      default: false
+    }
   },
   components: { 
     RemoteFileInput, 
@@ -105,9 +119,7 @@ export default defineComponent({
     function onDev(ev) {
       console.log(parameters.val);
     }
-    onMounted(async () => {
-      // const pairs = props.template.parameters.map((x) => ([x.name, x.value]));
-      // parameters.val = lodash.fromPairs(pairs);     
+    onMounted(async () => {  
       parameters.val = props.modelValue;
     });
     return {
