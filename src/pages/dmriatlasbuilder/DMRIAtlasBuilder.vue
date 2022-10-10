@@ -13,11 +13,23 @@
             <q-tab name="execution" icon="directions_run" ><div class="q-pa-sm text-bold gt-md">Execution</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
       </q-tabs>
       <div>
-        <q-spinner-cube
-          class="q-ma-xs"
-          size="sm"
-          :color="running ? 'primary' :'transparent'"
-        />
+        <template v-if="running">
+          <q-spinner-cube
+            class="q-ma-xs"
+            size="sm"
+            :color="'primary'"
+          />
+        </template>
+        <template v-else>
+          <template v-if="success">
+            <q-icon name="check_circle_outline" class="q-ma-xs"
+              size="sm" color="secondary"/>
+          </template>
+          <template v-else>
+            <q-icon name="highlight_off" class="q-ma-xs"
+              size="sm" :color="hasRun ? 'red' : 'transparent'"/>
+          </template>
+        </template>
         <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
         <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
         <q-btn flat :disable="running" @click="generateRemoteParams">Generate Remote Params</q-btn>
@@ -48,7 +60,7 @@
         </q-tab-panel>
       </q-tab-panels>
       <q-separator/>
-      <LogBox v-if="running || !success" v-model="logtext" ref="logBox" :title="`Execution Log :${parameters.execution.m_OutputPath}/log.txt`"/>
+      <LogBox v-if="hasRun" v-model="logtext" ref="logBox" :title="`Execution Log :${parameters.execution.m_OutputPath}/log.txt`"/>
   </div>
 
 </template>
@@ -87,6 +99,7 @@ export default defineComponent({
     const logBox = ref(null);
     const running = ref(false);
     const success = ref(false);
+    const hasRun = ref(false);
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -162,6 +175,7 @@ export default defineComponent({
         return;
       }
       success.value = false
+      logtext.value = '';
       const client = await $c.client;
       const payload = {
         output_dir: parameters.value.execution.m_OutputPath,
@@ -181,6 +195,7 @@ export default defineComponent({
         };
         attachLogfile();
         running.value = true;
+        hasRun.value = true
         const data = await client.DMRIAtlasbuilder_execute(exc_payload);
         success.value = true;
         $q.notify({ message: 'DTI Atlas building has been fnished', timeout:20000, color:'green', actions:[{icon:'close'}]});
@@ -189,7 +204,9 @@ export default defineComponent({
         $q.notify({message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]});
       } finally {
         running.value = false
-        detachLogfile();
+        setTimeout(() => {
+          detachLogfile();
+        },5000);
       }
     }
     async function attachLogfile() {
@@ -289,7 +306,8 @@ export default defineComponent({
       logtext,
       logBox,
       running,
-      success
+      success,
+      hasRun,
     }
   }
 });
