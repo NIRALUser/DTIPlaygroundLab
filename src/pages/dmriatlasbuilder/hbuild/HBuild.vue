@@ -2,18 +2,17 @@
   <div class="q-pa-md">
     <PromptDialog ref="promptDialog" v-model="newname"/>
     <RemoteFileSelectDialog ref="fileDialog" multiple root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
-    <div class="row toolbar">
-      <div>
-        <p> DMRI AtlasBuilder HBuild Generator </p>
-          <q-btn color="primary" @click="newTree">New HBuild</q-btn >
-          <q-btn color="secondary" @click="loadTree">Open HBuild</q-btn >
-          <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
-          <q-btn color="warning" @click="saveTree">Save HBuild</q-btn >
-      </div>
+    <div class="row">
+        <q-btn  flat @click="newTree">New HBuild</q-btn >
+        <q-btn  flat @click="loadTree">Open HBuild</q-btn >
+        <q-btn  flat @click="saveTree">Save HBuild</q-btn >
+        <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
+        
     </div>
+    <q-separator/>
     <div class="row">
       <div class="noselect row col-12">
-          <div class="col-6 tree">
+          <div class="q-pa-md col-6 tree">
             <q-tree
               :nodes="nodes"
               node-key="id"
@@ -55,7 +54,7 @@
               </template>
             </q-tree>
           </div>
-          <div class="col-6">
+          <div class="q-pa-md col-6">
             <HBuildFiles v-model="currentNode" v-on:file-removed="removeFileFromNode"/>
           </div>
       </div>
@@ -111,10 +110,8 @@ export default defineComponent({
     const $q = useQuasar();
 
     function onDev(ev) {
-      // console.log(parameters.value);
     }
     async function openTreeFile(file) {
-      // console.log(file);
       if (!file) return;
       const reader = new FileReader();
       reader.addEventListener('load', (ev) => {
@@ -122,17 +119,16 @@ export default defineComponent({
         nodes[0] = qtreeFromHbuild(hbuild);
         localFile.value = null;
         currentNode.value = nodes[0];
+        dataQTree.value.expandAll();
       });
       await reader.readAsText(file);
+
     }
     function onAddFiles(node) {
       currentNode.value = node;
       fileDialog.value.openModal();
     }
     function onAddNode(node) {
-      // console.log(`Adding child for ${node.id}`);
-      // console.log(node);
-
       const newId = `${node.id}.child${getUUID().slice(0,8)}`;
       const newLabel = `Subject-${getUUID().slice(0,8)}`;
       const newNode = {
@@ -141,24 +137,20 @@ export default defineComponent({
           label: newLabel,
           files: [],
           children: [],
+          expanded: true,
       };
-      // console.log(newNode);
       if (isUniqueNode(nodes[0], newNode)) {
-        node.children.push(newNode)        
-      }
+        node.children.push(newNode)    
+        node.expanded = true;    
+      } 
     }
     function onEditNode(node) {
-      // console.log(`Renaming ${node.id}`);
-      // console.log(node);
       currentNode.value = node;
       promptDialog.value.openModal(node.label);
     }
     function onDeleteNode(node) {
-      // console.log(`Deleting ${node.id}`);
-      // console.log(nodes.value);
       if (!node.parent_id) return;
       const parent_node = dataQTree.value.getNodeByKey(node.parent_id);
-      // console.log(parent_node);
       parent_node.children = parent_node.children.filter((x) => x !== node)
     }
     function newTree(ev) {
@@ -190,11 +182,9 @@ export default defineComponent({
       const text = JSON.stringify(nodes, null, 2);
       ctx.emit('update:modelValue', nodes);
       ctx.emit('changed-param', nodes);
-      // localStorage.setItem('dtiab-tree', text);
     });
     watch(localFile, (nv, ov) => {
       if (!localFile.value) return;
-      // console.log(nv);
       openTreeFile(nv[0]);
     });
     watch(newname, (nv, ov) => {
@@ -223,19 +213,14 @@ export default defineComponent({
       currentNode.value = dataQTree.value.getNodeByKey(selectedNode.value);
     });
     onMounted(async () => {
-      // const cachedNodes = localStorage.getItem('dtiab-tree');
-      // if (cachedNodes) {
-      //   const parsed = JSON.parse(cachedNodes);
-      //   nodes[0] = parsed[0];
-      // } else {
-      //   newTree();
-      // }
       console.log(props.modelValue);
       if (props.modelValue.length > 0) {
         nodes[0] = props.modelValue[0];
       } else {
         newTree();
       }
+      dataQTree.value.expandAll();
+      console.log(dataQTree.value);
     });
     return {
       nodes,
