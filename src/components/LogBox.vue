@@ -9,6 +9,7 @@
         type="textarea"
         rows="20"
         readonly
+        class="text-caption"
         />
     </div>
   </div>

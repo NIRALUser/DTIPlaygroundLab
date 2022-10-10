@@ -176,6 +176,7 @@ export default defineComponent({
       }
       success.value = false
       logtext.value = '';
+      last_line.value = 0;
       const client = await $c.client;
       const payload = {
         output_dir: parameters.value.execution.m_OutputPath,
