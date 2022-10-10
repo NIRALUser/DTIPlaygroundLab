@@ -16,8 +16,7 @@
         <q-spinner-cube
           class="q-ma-xs"
           size="sm"
-          color="primary"
-          v-if="running"
+          :color="running ? 'primary' :'transparent'"
         />
         <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
         <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
