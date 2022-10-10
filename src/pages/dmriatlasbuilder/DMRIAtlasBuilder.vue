@@ -12,11 +12,20 @@
             <q-tab name="finalresample" icon="loop" ><div class="q-pa-sm text-bold gt-md">Final Resampling</div><q-tooltip>Resampling Parameters</q-tooltip></q-tab> 
             <q-tab name="execution" icon="directions_run" ><div class="q-pa-sm text-bold gt-md">Execution</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
       </q-tabs>
-      <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
-      <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
-      <q-btn flat :disable="running" @click="generateRemoteParams">Generate Remote Params</q-btn>
-      <q-btn flat :disable="running" @click="execute">Execute</q-btn>
-      <q-btn flat :disable="running" @click="attachLogfile">Attach logfile</q-btn>
+      <div>
+        <q-spinner-cube
+          class="q-ma-xs"
+          size="sm"
+          color="primary"
+          v-if="running"
+        />
+        <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
+        <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
+        <q-btn flat :disable="running" @click="generateRemoteParams">Generate Remote Params</q-btn>
+        <q-btn flat :disable="running" @click="execute">Execute</q-btn>
+        <q-btn flat :disable="running" @click="attachLogfile">Attach logfile</q-btn>
+      </div>
+
       <q-separator />
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="main">
@@ -40,7 +49,7 @@
         </q-tab-panel>
       </q-tab-panels>
       <q-separator/>
-      <LogBox v-if="running" v-model="logtext" ref="logBox" :title="`Execution Log :${parameters.execution.m_OutputPath}/log.txt`"/>
+      <LogBox v-if="running || !success" v-model="logtext" ref="logBox" :title="`Execution Log :${parameters.execution.m_OutputPath}/log.txt`"/>
   </div>
 
 </template>
@@ -78,6 +87,7 @@ export default defineComponent({
     const tab = ref<string>(null);
     const logBox = ref(null);
     const running = ref(false);
+    const success = ref(false);
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -152,6 +162,7 @@ export default defineComponent({
         $q.notify({message: 'Parameters are not ready', timeout: 20000, color : 'red', actions: [{icon: 'close'}]});
         return;
       }
+      success.value = false
       const client = await $c.client;
       const payload = {
         output_dir: parameters.value.execution.m_OutputPath,
@@ -172,8 +183,10 @@ export default defineComponent({
         attachLogfile();
         running.value = true;
         const data = await client.DMRIAtlasbuilder_execute(exc_payload);
+        success.value = true;
         $q.notify({ message: 'DTI Atlas building has been fnished', timeout:20000, color:'green', actions:[{icon:'close'}]});
       } catch (e) {
+        success.value = false;
         $q.notify({message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]});
       } finally {
         running.value = false
@@ -276,7 +289,8 @@ export default defineComponent({
       attachLogfile,
       logtext,
       logBox,
-      running
+      running,
+      success
     }
   }
 });
