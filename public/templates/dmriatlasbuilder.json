@@ -7,10 +7,10 @@
           "parameters":[
                {
                   "name" : "m_BFAffineTfmMode",
-                  "caption": "BF Affine tfm Mode",
+                  "caption": "Affine Transform Mode",
                   "value": "useCenterOfHeadAlign",
                   "type": "select",
-                  "description" : "None",
+                  "description" : "Affine registration transform mode",
                   "candidates" : [
                     {
                       "value": "useCenterOfHeadAlign",
@@ -20,17 +20,17 @@
                     {
                       "value": "useGeometryAlign",
                       "caption": "Use Geometry Align",
-                      "description": "Nothing"
+                      "description": "Using Geometry Alignment"
                     },
                     {
                       "value": "UseMomentsAlign",
                       "caption": "Use Moments Align",
-                      "description": "Nothing"
+                      "description": "Use Moment Alignment method"
                     },
                     {
                       "value": "Off",
                       "caption": "Off",
-                      "description": "Nothing"
+                      "description": "Do not align"
                     }           
                   ]
                },
@@ -39,17 +39,20 @@
                   "caption" : "Number of Iterations",
                   "value" : 2,
                   "type": "number",
-                  "description" : "None"
+                  "description" : "Number of affine registration"
                },
                {
                   "name" : "m_NeedToBeCropped",
                   "caption" : "To Crop",
                   "value" : false,
                   "type": "checkbox",
-                  "description" : "None"
+                  "description" : "If checked, image will be cropped"
                },
                {
                   "name" : "m_CropSize",
+                  "if" : {
+                    "m_NeedToBeCropped" : true
+                  },
                   "caption": "Cropping Sizes",
                   "value": [50,50,50],
                   "type": "list",
@@ -61,7 +64,7 @@
                   "caption" : "Scalar Measurement Type",
                   "value" : "FA",
                   "type": "select",
-                  "description" : "None",
+                  "description" : "Scalar to be used for registration",
                   "candidates" : [
                     {
                       "value": "FA",
@@ -103,7 +106,7 @@
                   "caption" : "Resampling Interpolation type",
                   "value" : "Linear",
                   "type": "select",
-                  "description" : "None",
+                  "description" : "Interpolation type for diffeomorphic registration",
                   "candidates" : [
                     {
                       "value": "Linear",
@@ -162,14 +165,14 @@
                       "description": "Blackman"
                     }
                   ],
-                  "description" : "None"
+                  "description" : "Interpolation sub class if Windoed Sinc was chosen for interpolation type"
                },
                {
                   "name" : "m_TensInterpol",
                   "caption" : "Tensor Interpolation",
                   "value" : "Log Euclidean",
                   "type": "select",
-                  "description" : "None",
+                  "description" : "Tensor interpolation type",
                   "candidates" : [
                     {
                       "value": "Log Euclidean",
@@ -213,14 +216,14 @@
                       "description": "Nearest"
                     }
                   ],
-                  "description" : "None"
+                  "description" : "Options iff Non Log Euclidean tensor interpolation is selected"
                },
                {
                   "name" : "m_TensTfm",
                   "caption" : "Tensor Transformation",
                   "value" : "Preservation of the Principal Direction (PPD)",
                   "type": "select",
-                  "description" : "None",
+                  "description" : "Tensor transformation method",
                   "candidates" : [
                     {
                       "value": "Preservation of the Principal Direction (PPD)",
@@ -244,7 +247,7 @@
                   "caption": "Registration Method",
                   "type" : "select",
                   "value" : "ANTS",
-                  "description" : "NA",
+                  "description" : "Registration method for the registration in final resampling",
                   "candidates": [
                        {
                           "value" : "ANTS",
@@ -375,14 +378,14 @@
                     "m_RegMethod" : "ANTS"
                   },
                   "type": "filepath-remote",
-                  "description" : "None"
+                  "description" : "(Optional) ANTS installation directory (e.g. /usr/local/ANTS/bin), if not selected, ANTS in DTIPlaygroundTools will be used."
                },  
                {
                   "name" : "m_NbThreadsString",
-                  "caption" : "Number of threads to use",
+                  "caption" : "Number of threads to use for GreedyAtlas",
                   "value" : 3,
                   "type": "number",
-                  "description" : "None"
+                  "description" : "This is the number of threads to be allocated for single registration process. If parallelism is set in execution settings, total number of threads to be used will be multiplied."
                },
                {
                   "name" : "m_DTIRegOptions_ANTS",
@@ -408,7 +411,7 @@
                                     "caption": "Registration Type",
                                     "type" : "select",
                                     "value" : "GreedyDiffeo (SyN)",
-                                    "description" : "NA",
+                                    "description" : "Registration Type (Greedy as default)",
                                     "disabled" : false,
                                     "candidates": [
                                         {
@@ -453,7 +456,7 @@
                                     "caption" : "Transformation Step",
                                     "type" : "number",
                                     "value" : 0.25,
-                                    "description" : "NA"
+                                    "description" : "Transformation Step Parameter"
                                   },
                                   {
                                     "name" : 3,
@@ -490,21 +493,21 @@
                                     "caption" : "Similarity Parameter",
                                     "type" : "number",
                                     "value" : 2.00,
-                                    "description" : "NA"
+                                    "description" : "Similarity Parameter"
                                   },
                                   {
                                     "name" : 6,
                                     "caption" : "Gaussian Sigma",
                                     "type" : "number",
                                     "value" : 3.00,
-                                    "description" : "NA"
+                                    "description" : "Gaussian sigma to evaluate the threshold"
                                   },
                                   {
                                     "name" : 7,
                                     "caption" : "Gaussian Smoothing Off",
                                     "type" : "checkbox",
                                     "value" : false,
-                                    "description" : "NA"
+                                    "description" : "If checked, gaussian smoothing will be off"
                                   }
                               ]
                   }
@@ -515,7 +518,7 @@
                   "value" : 3,
                   "type": "number",
                   "disabled": false,
-                  "description" : "None"
+                  "description" : "Number of iterations to perform final registration with DTIReg"
                }
           ]
     },
@@ -527,7 +530,7 @@
                   "caption" : "Output Path",
                   "value" : "",
                   "type": "dirpath-remote",
-                  "description" : "None"
+                  "description" : "Output directory. If it doesn't exist, it creates the directory, however, recursive generation of directory is not permitted."
                },
                {
                   "name" : "m_nbParallelism",
@@ -535,7 +538,7 @@
                   "value" : 1,
                   "type": "number",
                   "disabled": false,
-                  "description" : "Total core to use will be nbThread * nbParallelism"
+                  "description" : "The maximum number of parallel proceses when building hierarchical atlas. Thie can save time, but keep in mind that total core to use will be nbThread * nbParallelism"
                },
                {
                   "name" : "m_Overwrite",
@@ -549,15 +552,18 @@
                   "caption" : "Python Path",
                   "value" : "/usr/bin/python",
                   "hidden": true,
+                  "disabled": true,
                   "type": "filepath-remote",
-                  "description" : "None"
+                  "description" : "Python path, deprecated"
                },
                {
                   "name" : "m_useGridProcess",
                   "caption" : "Use Grid Processing",
                   "value" : false,
                   "type": "checkbox",
-                  "description" : "None"
+                  "disabled" : true,
+                  "hidden": true,
+                  "description" : "Deprecated"
                },
                {
                   "name" : "m_GridAtlasCommand",
@@ -568,7 +574,7 @@
                   },
                   "optional": true,
                   "type": "string",
-                  "description" : "None"
+                  "description" : "Deprecated"
                },
                {
                   "name" : "m_GridGeneralCommand",
@@ -579,7 +585,7 @@
                   },
                   "optional" : true,
                   "type": "string",
-                  "description" : "None"
+                  "description" : "Deprecated"
                }
 
           ]

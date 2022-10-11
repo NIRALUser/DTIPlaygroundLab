@@ -49,7 +49,6 @@ export default defineComponent({
     const table = reactive<any>({val: null});
     const selected = reactive<any>({val: []});
     watch(table, (nv, ov) => {
-      console.log('Table changed');
       ctx.emit('update:modelValue', table.val);
       ctx.emit('changedParam', table.val);
     });

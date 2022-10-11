@@ -36,7 +36,7 @@
 <script lang="ts">
 
 import { defineComponent, onMounted, ref, computed, watchEffect, watch } from 'vue';
-import { useClientStore } from 'src/stores';
+import { useClientStore } from 'src/stores/dtiplayground.ts';
 import lodash from 'lodash';
 
 export default defineComponent({

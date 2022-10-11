@@ -7,7 +7,7 @@
         ref="textArea"
         v-model="modelValue"
         type="textarea"
-        rows="20"
+        rows="10"
         readonly
         class="text-caption"
         />
@@ -34,6 +34,7 @@ export default defineComponent({
   },
   setup (props, ctx) {
     const textArea = ref(null);
+    const content = computed(() => props.modelValue);
     const el = ref(null);
 
     function scrollToEnd() {
@@ -41,8 +42,12 @@ export default defineComponent({
             el.value.scrollTop = el.value.scrollHeight;
         }, 500); 
     }
+    watch(content, () => {
+      scrollToEnd();
+    });
     onMounted(async () => {
       el.value = textArea.value.$el.querySelector('textarea');
+      scrollToEnd();
     });
     return {
       textArea,

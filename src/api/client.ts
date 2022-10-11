@@ -70,6 +70,13 @@ export default class Client {
       throw e;
     });    
   }
+  async getReadMe(): Promise<any> {
+    return this.axios.get('/api/v1/files/get-readme').then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });      
+  }
   // DMRIAtlasbuilder
   async DMRIAtlasbuilder_generateOutputDirectory(payload: any): Promise<any> {
     return this.axios.post('/api/v1/dmriatlasbuilder/parameters', payload).then((response) => {

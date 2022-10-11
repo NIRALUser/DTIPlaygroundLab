@@ -5,7 +5,7 @@
           "name" : "greedy",
           "description" : "Greedy Atlas Parameters",
           "table": {
-               "title": "Greedy Atlas Scale Level",
+               "name": "Greedy Atlas Scale Level",
                "columns" : [
 
                     { "name": "scale_level", "label": "Scale Level", "field": "scale_level" },

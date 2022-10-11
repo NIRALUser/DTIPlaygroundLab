@@ -1,61 +1,69 @@
 <template>
   <div class="q-pa-md">
     <PromptDialog ref="promptDialog" v-model="newname"/>
+    <ConfirmDialog ref="confirmDialogDelete" v-model="confirmed"/>
     <RemoteFileSelectDialog ref="fileDialog" multiple root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
     <div class="row">
-        <q-btn  flat @click="newTree">New HBuild</q-btn >
-        <q-btn  flat @click="loadTree">Open HBuild</q-btn >
-        <q-btn  flat @click="saveTree">Save HBuild</q-btn >
+        <div><q-btn  :disable="disable" color="primary" flat icon="content_paste" @click="newTree">Clear HBuild</q-btn ><q-tooltip>Clear current tree</q-tooltip></div>
+        <div><q-btn  :disable="disable" color="primary" flat icon="folder_open" @click="loadTree">Open HBuild</q-btn ><q-tooltip>Open hbuild file in json format</q-tooltip></div>
+        <div><q-btn  color="primary" flat icon="download"  @click="saveTree">Download HBuild</q-btn ><q-tooltip>Save tree to file in json format)</q-tooltip></div>
         <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
         
     </div>
     <q-separator/>
     <div class="row">
       <div class="noselect row col-12">
-          <div class="q-pa-md col-6 tree">
-            <q-tree
-              :nodes="nodes"
-              node-key="id"
-              v-model:selected="selectedNode"
-              ref="dataQTree">
-              <template v-slot:default-header="prop">
-                  <div class="row">
-                    <div>
-                      {{prop.node.label}}
-                    </div>
-                    <div v-if="prop.node.children.length < 1">
-                      <q-tooltip>
-                        Add Files
-                      </q-tooltip>
-                      <q-icon class="hover"  color="primary" name="folder" @click="onAddFiles(prop.node)"></q-icon>
-                    </div>
-                    <div v-if="prop.node.files.length < 1">
-                      <q-tooltip>
-                        Add Child Node
-                      </q-tooltip>
-                      <q-icon class="hover"  color="primary" name="add" @click="onAddNode(prop.node)"></q-icon>
-                    </div>
-                    <div>
-                      <q-tooltip>
-                        Rename Node
-                      </q-tooltip>
-                      <q-icon class="hover"  color="warning" name="edit" @click="onEditNode(prop.node)"></q-icon>
-                    </div>
-                    <div>
-                      <q-tooltip>
-                        Remove Node
-                      </q-tooltip>
-                      <q-icon class="hover"  v-if="prop.node.parent_id" color="red" name="delete" @click="onDeleteNode(prop.node)"></q-icon>
-                    </div>
-                    <div>
-                      <q-chip class="q-mt-none" text-color="white" color="secondary" dense v-if="prop.node.children.length === 0">{{prop.node.files.length}}</q-chip>
-                    </div>
-                  </div>
-              </template>
-            </q-tree>
+          <div class="q-pa-md col-sm-6 col-xs-12 tree">
+            <div class="row">
+                <div class="q-pa-auto bg-primary text-h6 text-center text-white col-12">
+                  Atlas Tree
+                </div>
+                <div class="col-12">
+                      <q-tree
+                        :nodes="nodes"
+                        node-key="id"
+                        v-model:selected="selectedNode"
+                        ref="dataQTree">
+                        <template v-slot:default-header="prop">
+                            <div class="row">
+                              <div>
+                                {{prop.node.label}}
+                              </div>
+                              <div v-if="prop.node.children.length < 1">
+                                <q-tooltip>
+                                  Add Files
+                                </q-tooltip>
+                                <q-icon class="hover" v-if="!disable" color="primary" name="folder" @click="onAddFiles(prop.node)"></q-icon>
+                              </div>
+                              <div v-if="prop.node.files.length < 1">
+                                <q-tooltip>
+                                  Add Child Node
+                                </q-tooltip>
+                                <q-icon class="hover"  v-if="!disable" color="primary" name="add" @click="onAddNode(prop.node)"></q-icon>
+                              </div>
+                              <div>
+                                <q-tooltip>
+                                  Rename Node
+                                </q-tooltip>
+                                <q-icon class="hover"  v-if="!disable" color="warning" name="edit" @click="onEditNode(prop.node)"></q-icon>
+                              </div>
+                              <div>
+                                <q-tooltip>
+                                  Remove Node
+                                </q-tooltip>
+                                <q-icon class="hover"  v-if="prop.node.parent_id | !disable" color="red" name="delete" @click="onDeleteNode(prop.node)"></q-icon>
+                              </div>
+                              <div>
+                                <q-chip class="q-mt-none" text-color="white" :color="prop.node.files.length > 0 ? 'primary':'red'" dense v-if="prop.node.children.length === 0">{{prop.node.files.length}}</q-chip>
+                              </div>
+                            </div>
+                        </template>
+                      </q-tree>
+                </div>
+            </div>
           </div>
-          <div class="q-pa-md col-6">
-            <HBuildFiles v-model="currentNode" v-on:file-removed="removeFileFromNode"/>
+          <div class="q-pa-md col-sm-6 col-xs-12">
+            <HBuildFiles :disable="disable" :hidden="hidden" v-model="currentNode" v-on:file-removed="removeFileFromNode"/>
           </div>
       </div>
     </div>
@@ -65,25 +73,35 @@
 <script lang="ts">
 
 import { defineComponent, onMounted, watch, watchEffect, ref, reactive} from 'vue';
-import { useClientStore } from 'src/stores';
 import lodash from 'lodash';
 import { download, getUUID } from 'src/utils';
 import RemoteFileSelectDialog from 'src/components/RemoteFileSelectDialog.vue';
 import PromptDialog from 'src/components/PromptDialog.vue';
+import ConfirmDialog from 'src/components/ConfirmDialog.vue';
 import { flattenQtree, generateFromRoot, hbuildFromFlatTree, hbuildFromQtree, qtreeFromHbuild, isUniqueId, isUniqueLabel, isUniqueNode } from '../convert';
 import HBuildFiles from './HBuildFiles.vue';
 import { useQuasar } from 'quasar';
+import { useClientStore } from 'src/stores/dtiplayground.ts';
 
 export default defineComponent({
   props: {
     modelValue: {
       type: Array,
       default: []
+    },
+    hidden: {
+      type: Boolean,
+      default: false
+    },
+    disable: {
+      type: Boolean,
+      default: false
     }
   },
   components: {  
     RemoteFileSelectDialog,
     PromptDialog,
+    ConfirmDialog,
     HBuildFiles
   },
 
@@ -93,6 +111,7 @@ export default defineComponent({
     const selectedFiles = ref<any[]>([]);
     const localFile = ref<any>(null);
     const newname = ref<string | null>(null);
+    const confirmed = ref<boolean>(false);
     const nodes = reactive<any[]>([{
                                       id: 'root',
                                       parent_id: null,
@@ -103,7 +122,8 @@ export default defineComponent({
                                   }]);
     const currentNode = ref<any>(null);
     const fileDialog = ref(null);
-    const promptDialog = ref(null)
+    const promptDialog = ref(null);
+    const confirmDialogDelete = ref(null);
     const dataQTree = ref(null);
     const fileInput = ref(null);
     const nodeFiles = ref<any[]>([]);
@@ -122,7 +142,6 @@ export default defineComponent({
         dataQTree.value.expandAll();
       });
       await reader.readAsText(file);
-
     }
     function onAddFiles(node) {
       currentNode.value = node;
@@ -149,9 +168,20 @@ export default defineComponent({
       promptDialog.value.openModal(node.label);
     }
     function onDeleteNode(node) {
+      confirmed.value = false;
+      confirmDialogDelete.value.openModal();
+    }
+    watch(confirmed, (nv, ov) => {
+      if(nv) {
+        deleteNode(currentNode.value);
+      } else {
+      }
+    });
+    function deleteNode(node) {
+      console.log(confirmed.value);
       if (!node.parent_id) return;
       const parent_node = dataQTree.value.getNodeByKey(node.parent_id);
-      parent_node.children = parent_node.children.filter((x) => x !== node)
+      parent_node.children = parent_node.children.filter((x) => x !== node)      
     }
     function newTree(ev) {
       nodes[0] =    {
@@ -213,14 +243,13 @@ export default defineComponent({
       currentNode.value = dataQTree.value.getNodeByKey(selectedNode.value);
     });
     onMounted(async () => {
-      console.log(props.modelValue);
       if (props.modelValue.length > 0) {
         nodes[0] = props.modelValue[0];
       } else {
         newTree();
       }
       dataQTree.value.expandAll();
-      console.log(dataQTree.value);
+      currentNode.value = nodes[0];
     });
     return {
       nodes,
@@ -228,6 +257,7 @@ export default defineComponent({
       currentNode,
       selectedFiles,
       newname,
+      confirmed,
       onDev,
       openTreeFile,
       loadTree,
@@ -236,6 +266,7 @@ export default defineComponent({
       fileDialog,
       dataQTree,
       promptDialog,
+      confirmDialogDelete,
       onEditNode,
       onDeleteNode,
       onAddNode,

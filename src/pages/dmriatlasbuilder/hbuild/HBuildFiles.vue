@@ -1,10 +1,11 @@
 <template>
-  <div class="q-pa-none truncate" v-if="modelValue">
-    <div v-if="modelValue.files.length > 0">Files in {{ modelValue.label }}</div>
+  <div class="q-pa-auto truncate" v-if="modelValue">
+    <div class="bg-secondary text-white text-h6 text-center" v-if="modelValue.files.length > 0">Files in {{ modelValue.label }}</div>
+    <q-separator/>
     <q-list dense separator>
       <q-item clickable v-ripple v-for="file in modelValue.files" :key="file">
-        <div class="row text-caption">
-          <q-item-section side><q-icon clickable name="delete" color="red" @click="deleteItem(modelValue.id, file)"/></q-item-section>
+        <div class="row text-caption ">
+          <q-item-section side><q-icon v-if="!disable" clickable name="delete" color="red" @click="deleteItem(modelValue.id, file)"/></q-item-section>
           <q-item-section>
             {{ file.split('/').reverse()[0] }}
           </q-item-section>
@@ -26,6 +27,14 @@ export default defineComponent({
     modelValue: {
       type: Object,
       default: {}
+    },
+    hidden: {
+      type: Boolean,
+      default: false
+    },
+    disable: {
+      type: Boolean,
+      default: false
     }
   },
   components: { },

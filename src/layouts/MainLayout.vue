@@ -40,6 +40,7 @@
     </q-drawer>
     <q-page-container>
       <router-view />
+      <GlobalNotification />
     </q-page-container>
   </q-layout>
 </template>
@@ -49,9 +50,11 @@ import { defineComponent, onMounted, watch, watchEffect, computed } from 'vue';
 import { ref } from 'vue';
 import store from '../stores';
 import Router from '../router';
-import BaseMenu from 'components/BaseMenu.vue';
-import { APP_TITLE } from 'src/environments.ts';
 import { useQuasar } from 'quasar';
+import BaseMenu from 'components/BaseMenu.vue';
+import GlobalNotification from 'components/GlobalNotification.vue';
+import { APP_TITLE } from 'src/environments.ts';
+import { useGlobalNotification } from 'src/stores/dtiplayground';
 
 const linksList = [
   {
@@ -75,22 +78,22 @@ const linksList = [
   {
     title: 'About',
     caption: 'About DTI Playground',
-    icon: 'question_mark',
+    icon: 'info_outline',
     link: '#/about'
   },
 ];
 
 export default defineComponent({
   props: [],
-  components: { BaseMenu },
+  components: { BaseMenu, GlobalNotification },
   setup (props, ctx) {
     const leftDrawerOpen = ref(false);
-    const $q = useQuasar();
+    const $n = useGlobalNotification();
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
     }
     onMounted(async () => {
-      $q.notify({ message : "Welcome to DTI Playground", color: "green", timeout: 1000});
+      $n.notify({ message : "Welcome to DTI Playground", color: "green", timeout: 1000});
     });
     return {
       essentialLinks: linksList,

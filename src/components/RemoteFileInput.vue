@@ -47,7 +47,6 @@ export default defineComponent({
       if (selectedFiles.val.length < 1) return;
       ctx.emit('update:modelValue', selectedFiles.val[0].path);
       singleFile.val = selectedFiles.val[0].path;
-      console.log(selectedFiles.val);
     });
     function openDialog(){
       fileDialog.value.openModal();
