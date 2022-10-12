@@ -34,11 +34,12 @@
 <script lang='ts'>
 
 import { defineComponent, onMounted , ref } from 'vue';
-import { useClientStore } from 'src/stores/dtiplayground';
+import { useClientStore, useGlobalVariables } from 'src/stores/dtiplayground';
 
 export default defineComponent({
   setup (props, ctx) {
     const $c = useClientStore();
+    const $g = useGlobalVariables();
     const readme = ref<string>('');
     const tab = ref<any>('docs');
     async function fetchReadMe() {
@@ -48,6 +49,7 @@ export default defineComponent({
     }
     onMounted(async () => {
       await fetchReadMe();
+      $g.setApplicationName(null);
     });
     return {
       readme,
