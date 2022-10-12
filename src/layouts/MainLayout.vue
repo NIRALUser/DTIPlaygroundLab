@@ -12,7 +12,13 @@
         />
 
         <q-toolbar-title>
-          <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://github.com/niraluser/dtiplayground">{{ APP_TITLE }}</q-item>
+          <q-item dense 
+                  class="q-pa-sm" 
+                  tag="a" 
+                  target="_blank" 
+                  href="https://github.com/niraluser/dtiplayground">
+                {{ APP_TITLE }} <div class="q-pa-auto text-caption" >{{ currentApplication }} </div>
+          </q-item>
         </q-toolbar-title>
 
         <div> <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://www.med.unc.edu/psych/research/niral/">NIRAL</q-item> </div>
@@ -46,15 +52,15 @@
 </template>
 <script lang="ts">
 
-import { defineComponent, onMounted, watch, watchEffect, computed } from 'vue';
-import { ref } from 'vue';
+import { defineComponent, onMounted, watchEffect, ref } from 'vue';
 import store from '../stores';
+import { storeToRefs } from 'pinia';
 import Router from '../router';
 import { useQuasar } from 'quasar';
 import BaseMenu from 'components/BaseMenu.vue';
 import GlobalNotification from 'components/GlobalNotification.vue';
 import { APP_TITLE } from 'src/environments.ts';
-import { useGlobalNotification } from 'src/stores/dtiplayground';
+import { useGlobalNotification, useGlobalVariables } from 'src/stores/dtiplayground';
 
 const linksList = [
   {
@@ -89,6 +95,8 @@ export default defineComponent({
   setup (props, ctx) {
     const leftDrawerOpen = ref(false);
     const $n = useGlobalNotification();
+    const $g = useGlobalVariables();
+    const { currentApplication } = storeToRefs($g);
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
     }
@@ -101,6 +109,7 @@ export default defineComponent({
       toggleLeftDrawer,
       Router,
       APP_TITLE,
+      currentApplication,
     };
   }
 });

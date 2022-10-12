@@ -1,9 +1,9 @@
 <template>
     <div class="q-pa-md noselect" v-if="parameters.val && template">
-        <div v-for="param in template.parameters" :key="param.name">
+        <div v-for="param in template" :key="param.name">
           <template v-if="conditionCheck(parameters.val, param.if) && !param.hidden">
               <div :class="{ 'bg-white' : 'if' in param }" >
-                    <template v-if="param.type === 'number'">
+                    <template v-if="paramType(param.type) === 'number'">
                       <div class="row">
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled"  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
@@ -23,7 +23,7 @@
                           </q-tooltip>
                       </div>
                     </template>
-                    <template v-else-if="param.type === 'select'">
+                    <template v-else-if="paramType(param.type) === 'select'">
                       <div class="row">
                         <div class="col-12">
                            <q-select :disable="disable || param.disabled" dense :label="param.caption" :options="param.candidates.map((x) => x.value)"  v-model="parameters.val[param.name]">
@@ -34,7 +34,7 @@
                         </q-tooltip>
                       </div>
                     </template>
-                    <template  v-else-if="param.type === 'checkbox'">
+                    <template  v-else-if="paramType(param.type) === 'boolean'">
                         <div class="col-12">
                            <q-checkbox :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
@@ -42,14 +42,14 @@
                             {{ param.description }}
                         </q-tooltip>
                     </template>
-                    <template v-else-if="param.type === 'component'">
+                    <template v-else-if="paramType(param.type) === 'component'">
                      <div class="row">
                         <div class="col-12">
                            <AutoForm :disable="disable || param.disabled" v-model="parameters.val[param.name]" :template="param.components"/>
                         </div>
                       </div>                   
                     </template>
-                    <template v-else-if="param.type === 'filepath-remote'">
+                    <template v-else-if="paramType(param.type) === 'filepath-remote'">
                        <div class="row">
                         <div class="col-12">
                            <RemoteFileInput :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
@@ -59,7 +59,7 @@
                         </q-tooltip>
                       </div>
                     </template>
-                    <template v-else-if="param.type === 'dirpath-remote'">
+                    <template v-else-if="paramType(param.type) === 'dirpath-remote'">
                        <div class="row">
                         <div class="col-12">
                            <RemoteFileInput :disable="disable || param.disabled" v-model="parameters.val[param.name]" directory :label="param.caption"/>
@@ -87,11 +87,27 @@
 
 <script lang="ts">
 
-import { defineComponent, onMounted, watch, reactive} from 'vue';
+import { defineComponent, onMounted, watch, reactive, computed} from 'vue';
 import lodash from 'lodash';
 import { conditionCheck } from 'src/utils';
 import RemoteFileInput from 'src/components/RemoteFileInput.vue';
 
+function paramType(from): string {
+  const typemap = {
+    'number' : 'number',
+    'float' : 'number',
+    'integer' : 'number',
+    'string' : 'string',
+    'list' : 'select',
+    'select':'select',
+    'boolean':'boolean',
+    'filepath-remote':'filepath-remote',
+    'dirpath-remote':'dirpath-remote',
+    'component':'component',
+    'checkbox':'boolean'
+  }
+  return typemap[from];
+}
 export default defineComponent({
   props: {
     modelValue: {
@@ -112,7 +128,7 @@ export default defineComponent({
   },
   setup (props, ctx) {
     const parameters = reactive<any>({val: null});
-
+    const currentTemplate = computed(() => props.template)
     watch(parameters, (nv, ov) => {
       ctx.emit('update:modelValue', nv.val);
       ctx.emit('changedParam', nv.val);
@@ -120,6 +136,9 @@ export default defineComponent({
     function onDev(ev) {
       console.log(parameters.val);
     }
+    watch(currentTemplate, (nv, ov) => {
+      parameters.val = props.modelValue;
+    });
     onMounted(async () => {  
       parameters.val = props.modelValue;
     });
@@ -127,6 +146,7 @@ export default defineComponent({
       parameters,
       onDev,
       conditionCheck,
+      paramType,
 
     };
   }

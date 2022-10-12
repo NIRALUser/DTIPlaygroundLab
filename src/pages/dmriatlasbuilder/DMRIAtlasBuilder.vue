@@ -37,11 +37,11 @@
           inline-label
           class="bg-white text-primary shadow-2"
         >
-              <q-tab name="hbuild" icon="account_tree"><div class="q-pa-sm text-bold gt-md">HBuild</div><q-tooltip>HBuild Tree</q-tooltip></q-tab>
-              <q-tab name="affineatlas" icon="transform"><div class="q-pa-sm text-bold gt-md">Affine Atlas</div><q-tooltip>Affine Atlas Parameters</q-tooltip></q-tab>
-              <q-tab name="diffeomorphicatlas" icon="polyline"><div class="q-pa-sm text-bold gt-md">Diffeomorphic Atlas</div><q-tooltip>Diffeomorphic Atlas Parameters</q-tooltip></q-tab> 
-              <q-tab name="finalresample" icon="loop" ><div class="q-pa-sm text-bold gt-md">Final Resampling</div><q-tooltip>Resampling Parameters</q-tooltip></q-tab> 
-              <q-tab name="settings" icon="settings" ><div class="q-pa-sm text-bold gt-md">Settings</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
+              <q-tab name="hbuild" icon="account_tree"><div class="q-pa-sm text-bold gt-sm">HBuild</div><q-tooltip>HBuild Tree</q-tooltip></q-tab>
+              <q-tab name="affineatlas" icon="transform"><div class="q-pa-sm text-bold gt-sm">Affine Atlas</div><q-tooltip>Affine Atlas Parameters</q-tooltip></q-tab>
+              <q-tab name="diffeomorphicatlas" icon="polyline"><div class="q-pa-sm text-bold gt-sm">Diffeomorphic Atlas</div><q-tooltip>Diffeomorphic Atlas Parameters</q-tooltip></q-tab> 
+              <q-tab name="finalresample" icon="loop" ><div class="q-pa-sm text-bold gt-sm">Final Resampling</div><q-tooltip>Resampling Parameters</q-tooltip></q-tab> 
+              <q-tab name="settings" icon="settings" ><div class="q-pa-sm text-bold gt-sm">Settings</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
         </q-tabs>
       </div>
       <q-separator/>
@@ -56,17 +56,17 @@
                         <HBuild :disable="running" v-model="hbuild" v-on:changed-param="onParamChangedHbuild"/>
                       </q-tab-panel>
                       <q-tab-panel name="affineatlas">
-                          <AutoForm :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="diffeomorphicatlas">
                           <EditableTable :disable="running" v-model = "greedy" v-on:changed-param="onParamChangedGreedy"/>
-                          <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="finalresample">
-                          <AutoForm :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="settings">
-                          <AutoForm :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                     </q-tab-panels>
                   </div>
@@ -87,7 +87,6 @@
 <script lang='ts'>
 
 import { defineComponent, ref, onBeforeMount, onMounted, onUnmounted, watchEffect, computed, watch, reactive } from 'vue';
-// import { useClientStore, useNotificationStore, useInterval } from 'src/stores';
 import lodash from 'lodash';
 import HBuild from './hbuild/HBuild.vue';
 import AutoForm from 'src/components/AutoForm.vue';
@@ -95,8 +94,8 @@ import EditableTable from 'src/components/EditableTable.vue';
 import LogBox from '/src/components/LogBox.vue';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
-import { useClientStore, useInterval,useGlobalNotification, useRemoteExecutor } from 'src/stores/dtiplayground.ts';
-
+import { useClientStore, useInterval,useGlobalNotification , useGlobalVariables } from 'src/stores/dtiplayground';
+import { useDMRIAtlasRemoteExecutor } from 'src/stores/dmriatlasbuilder';
 import { hbuildFromQtree, convertABParameters } from './convert';
 import { validateAtlasParams } from './validation';
 
@@ -108,7 +107,7 @@ export default defineComponent({
                 LogBox
               },
   setup (props, ctx) {
-    const $r = useRemoteExecutor();
+    const $r = useDMRIAtlasRemoteExecutor();
     const env = process.env;
     const splitterModel = ref(50);
     const hbuild = ref<any[]>([]);
@@ -123,8 +122,10 @@ export default defineComponent({
     const $q = useQuasar();
     const $i = useInterval();
     const $n = useGlobalNotification();
+    const $g = useGlobalVariables();
 
     const { inProgress : running, isSuccessful: success, logText: logtext, progressMessage : message, isFailed: failed } = storeToRefs($r);
+
     async function loadRemoteTemplates() {
       const client = await $c.client;
       const uri = `${ window.location.origin }/templates/dmriatlasbuilder.json`;
@@ -248,6 +249,7 @@ export default defineComponent({
         loadDefaultParameters();
       }
       loadCachedTabIndex();
+      $g.setApplicationName('Atlas');
     });
     onUnmounted(() => {
     });

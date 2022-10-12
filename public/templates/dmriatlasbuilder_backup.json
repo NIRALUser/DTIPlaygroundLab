@@ -45,7 +45,7 @@
                   "name" : "m_NeedToBeCropped",
                   "caption" : "To Crop",
                   "value" : false,
-                  "type": "boolean",
+                  "type": "checkbox",
                   "description" : "If checked, image will be cropped"
                },
                {
@@ -55,7 +55,7 @@
                   },
                   "caption": "Cropping Sizes",
                   "value": [50,50,50],
-                  "type": "array",
+                  "type": "list",
                   "size": 3,
                   "description" : "None"
                },
@@ -82,7 +82,7 @@
                   "name" : "m_RegType",
                   "caption" : "Use the First Image as the Registration Template",
                   "value" : true,
-                  "type": "boolean",
+                  "type": "checkbox",
                   "description" : "If checked, use the first image as reference in the first Registration Loop"
                },     
                {
@@ -268,7 +268,9 @@
                   "value": ["BRAINS", "Diffeomorphic", "Use computed affine transform",5,"300,50,30,20,15"],
                   "type": "component",
                   "description" : "None",
-                  "components":[
+                  "components":{
+                    "caption" : "BRAINS Subparameters",
+                    "parameters" :[
                             { 
                                 "name" : 0,
                                 "caption": "Registration Method",
@@ -366,7 +368,7 @@
                                     "description" : "Number of pyramid levels"
                             }
                     ]
-                  
+                  }
                },
                {
                   "name" : "m_DTIRegExtraPath",
@@ -392,7 +394,10 @@
                   "value": ["ANTS", "GreedyDiffeo (SyN)", "0.25", "100x50x25", "Cross-Correlation (CC)", "2","3",false],
                   "type": "component",
                   "description" : "None",
-                  "components":[
+                  "components":
+                  {
+                    "caption" : "ANTS Subparameters", 
+                    "parameters":[
                                   { "name" : 0,
                                     "caption": "Registration Method",
                                     "type" : "label",
@@ -500,12 +505,12 @@
                                   {
                                     "name" : 7,
                                     "caption" : "Gaussian Smoothing Off",
-                                    "type" : "boolean",
+                                    "type" : "checkbox",
                                     "value" : false,
                                     "description" : "If checked, gaussian smoothing will be off"
                                   }
                               ]
-                  
+                  }
                },
                {
                   "name" : "m_nbLoopsDTIReg",
@@ -539,7 +544,7 @@
                   "name" : "m_Overwrite",
                   "caption" : "Overwrite",
                   "value" : true,
-                  "type": "boolean",
+                  "type": "checkbox",
                   "description" : "None"
                },
                {
@@ -555,7 +560,7 @@
                   "name" : "m_useGridProcess",
                   "caption" : "Use Grid Processing",
                   "value" : false,
-                  "type": "boolean",
+                  "type": "checkbox",
                   "disabled" : true,
                   "hidden": true,
                   "description" : "Deprecated"
