@@ -47,6 +47,7 @@
                                  <q-separator/>
                                  <q-item dense 
                                          clickable 
+                                         :disable="disable"
                                          class="q-pa-auto col-12 text-bold text-primary" 
                                          v-for="m in app.modules.system" 
                                          :key="m.path"
@@ -101,7 +102,7 @@
                                         <q-item-label>{{ m.name }}</q-item-label>
           <!--                               <q-item-label caption> Test </q-item-label> -->
                                     </q-item-section>
-                                    <template v-if="currentIndex === i">
+                                    <template v-if="currentIndex === i && !disable">
                                          <q-item-section @click="moveUp(i)" side>
                                           <q-icon color="white" name="keyboard_arrow_up" />
                                          </q-item-section>
@@ -129,9 +130,9 @@
                           </q-item>
                           <q-separator/>
                           <q-item-label overline>Protocol</q-item-label>
-                          <AutoForm :key = "`${pipeline[currentIndex].id}-protocol`" v-model="pipeline[currentIndex].value.protocol" :template="pipeline[currentIndex].template.protocol" v-on:changed-param="onChanged"/>
+                          <AutoForm :disable="disable" :key = "`${pipeline[currentIndex].id}-protocol`" v-model="pipeline[currentIndex].value.protocol" :template="pipeline[currentIndex].template.protocol" v-on:changed-param="onChanged"/>
                           <q-item-section><q-item-label overline>Execution option</q-item-label></q-item-section>
-                          <AutoForm :key = "`${pipeline[currentIndex].id}-options`" v-model="pipeline[currentIndex].value.options" :template="pipeline[currentIndex].template.options"  v-on:changed-param="onChanged"/>
+                          <AutoForm :disable="disable" :key = "`${pipeline[currentIndex].id}-options`" v-model="pipeline[currentIndex].value.options" :template="pipeline[currentIndex].template.options"  v-on:changed-param="onChanged"/>
                       </q-list>
                   </div>
                 </template>
@@ -263,6 +264,7 @@ export default defineComponent({
         openProtocolFile(nv[0])
     });
     async function onDoubleClick(name) {
+        if (props.disable) return;
         const data = await $r.getTemplate(name);
         template.value = data;
         const protocol = $r.getDefaultValues(template.value.protocol);

@@ -50,7 +50,7 @@
                   <div>
                     <q-tab-panels v-model="tab" animated >
                       <q-tab-panel name="pipeline">
-                        <Protocols v-on:changed-param="onChanged"/>
+                        <Protocols :disable="inProgress" v-on:changed-param="onChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="settings">
                           <AutoForm v-if="app" :disable="inProgress" v-model="io" :template="app.protocol_template.ui.execution" v-on:changed-param="onChanged"/>
