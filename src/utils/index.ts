@@ -19,6 +19,13 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function moveArrayElement(arr, from, to) {
+    const element = arr.splice(from,1)[0];
+    arr.splice(to, 0, element);
+    return arr;   
+
+}
+
 export function generateRouteByQuery(currentRoute: any, query: any) {
   const route = currentRoute;
   const newroute = {

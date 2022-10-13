@@ -94,7 +94,7 @@ export default class Client {
     });
   }  
   async DMRIPrep_generateOutputDirectory(payload: any): Promise<any> {
-    return this.axios.post('/api/v1/dmriprep/parameters', payload).then((response) => {
+    return this.axios.post('/api/v1/dmriprep/generate-default-protocols', payload).then((response) => {
       return response.data;
     }).catch((error) => {
       throw error

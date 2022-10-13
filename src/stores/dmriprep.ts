@@ -1,5 +1,6 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { useInterval, useClientStore, useGlobalNotification } from './dtiplayground';
+import lodash from 'lodash';
 import { getUUID } from 'src/utils';
 
 export const useDMRIPrep= defineStore('DMRIPrep', {
@@ -7,7 +8,7 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
     app: null,
     client: {},
     pipeline: [],
-    options: {},
+    execution: {},
     inProgress : false,
     isSuccessful : false,
     isFailed: false,
@@ -18,6 +19,9 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
     executionId: getUUID(),
   }),
   actions: {
+    clearProtocols() {
+      this.pipeline = []
+    },
     reset() {
       this.inProgress = false;
       this.isFailed = false;
@@ -37,8 +41,10 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
         const { data } = await client.DMRIPrep_getApplicationInfo();
         this.app = data;
         this.client = client;
+        this.execution = this.getDefaultValues(this.app.protocol_template.ui.execution);
         this.progressMessage = {message: 'Application data loaded', timeout: 1000, color : 'green'};
       } catch (e) {
+        console.log(e);
         if (e.response !== undefined ) this.progressMessage = {message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]};
         else this.progressMessage = {message: 'Connection Error', timeout: 1000, color : 'red', actions: [{icon: 'close'}]};
       }       
@@ -60,42 +66,70 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
       const $i = useInterval();
       $i.removeInterval(this.executionId);
     },
-    async getTemplate(name) {
+    getDefaultValues(template): any {
+      const pairs = template.map((x) => ([x.name, x.default_value]));
+      const defvals = lodash.fromPairs(pairs);
+      return defvals;
+    },
+    async getTemplate(name): Promise<any> {
      try {
         const { data } = await this.client.DMRIPrep_getTemplate(name);
-        // this.progressMessage = {message: `Template Loaded : ${name}`, timeout: 1000, color : 'green'};
         return data.ui;
       } catch (e) {
         if (e.response !== undefined ) this.progressMessage = {message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]};
         else this.progressMessage = {message: 'Connection Error', timeout: 1000, color : 'red', actions: [{icon: 'close'}]};
       }        
     },
-    async prepare(payload) {
+    async setProtocols(data) {
+      const new_pipeline = [];
+      this.execution = data.io;
+      lodash.forEach(data.pipeline, async (x) => {
+        const [name, value] = x;
+        const id = getUUID();
+        new_pipeline.push({ id, name, value, template : this.getTemplate(name) });
+      });
+      const res = await Promise.all(new_pipeline.map((x) => x.template));
+      new_pipeline.forEach((v, i ) => {
+        v.template = res[i];
+      });
+      this.pipeline = new_pipeline;
+    },
+    async prepare(payload): any {
       try {
         const $c = useClientStore();
         const client = await $c.client;
+        console.log(this.execution);
+        const payload = {
+          output_dir: this.execution.output_directory,
+          pipeline: this.pipeline.map((x) => [x.name,x.value]),
+          io: this.execution
+        }
         const data = await client.DMRIPrep_generateOutputDirectory(payload);
-        this.progressMessage = {message: 'Parameter generated successfully', timeout: 1000, color : 'green'};
+        this.progressMessage = {message: 'Protocol directory generated successfully', timeout: 1000, color : 'green'};
+        return payload;
       } catch (e) {
+        console.log(e);
         if (e.response !== undefined ) this.progressMessage = {message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]};
         else this.progressMessage = {message: 'Connection Error', timeout: 1000, color : 'red', actions: [{icon: 'close'}]};
       } 
     },
     async execute(payload) {
-      this.logFilePath = `${payload.output_dir}/log.txt`;
       const $c = useClientStore();
       const client = await $c.client;
       this.reset();
       try {
-        await this.prepare(payload);
-        const exc_payload = {
-          output_dir : payload.output_dir
+        const payload = {
+            output_dir: this.execution.output_directory,
+            pipeline: this.pipeline.map((x) => [x.name,x.value]),
+            io: this.execution
         };
+        this.logFilePath = `${payload.output_dir}/log.txt`;
+        await this.prepare(payload);
         this.attachLogfile();
         this.inProgress = true;
-        const data = await client.DMRIPrep_execute(exc_payload);
+        const data = await client.DMRIPrep_execute(payload);
         this.isSuccessful = true;
-        this.progressMessage = { message: 'DTI Atlas building has been fnished', timeout:20000, color:'green', actions:[{icon:'close'}]};
+        this.progressMessage = { message: 'DTI QC has been fnished', timeout:20000, color:'green', actions:[{icon:'close'}]};
       } catch (e) {
         this.isSuccessful = false;
         this.isFailed = true;
