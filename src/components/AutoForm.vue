@@ -13,7 +13,17 @@
                           </q-tooltip>
                       </div>
                     </template>
-                    <template :disable="disable" v-else-if="param.type === 'string'">
+                    <template :disable="disable" v-else-if="paramType(param.type) === 'string'">
+                      <div class="row">
+                          <div class="col-12">
+                            <q-input :disable="disable || param.disabled" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
+                          </div>
+                          <q-tooltip>
+                            {{ param.description }}
+                          </q-tooltip>
+                      </div>
+                    </template>
+                    <template :disable="disable" v-else-if="paramType(param.type) === 'array'">
                       <div class="row">
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
@@ -104,7 +114,8 @@ function paramType(from): string {
     'filepath-remote':'filepath-remote',
     'dirpath-remote':'dirpath-remote',
     'component':'component',
-    'checkbox':'boolean'
+    'checkbox':'boolean',
+    'array' : 'array',
   }
   return typemap[from];
 }

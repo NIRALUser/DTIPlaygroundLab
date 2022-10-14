@@ -22,8 +22,8 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-        <q-btn v-if="env.DEV" flat :disable="running" @click="dumpParams">Dump Params</q-btn>
-        <q-btn v-if="env.DEV" flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
+        <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
+        <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
               @click="generateRemoteParams">Generate Remote Params</q-btn>
@@ -108,7 +108,6 @@ export default defineComponent({
               },
   setup (props, ctx) {
     const $r = useDMRIAtlasRemoteExecutor();
-    const env = process.env;
     const splitterModel = ref(50);
     const hbuild = ref<any[]>([]);
     const parameters = ref<any>(null);
@@ -254,7 +253,6 @@ export default defineComponent({
     onUnmounted(() => {
     });
     return {
-      env,
       splitterModel,
       hbuild,
       template,

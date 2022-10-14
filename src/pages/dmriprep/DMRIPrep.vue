@@ -22,8 +22,8 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-        <q-btn v-if="env.DEV" flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
-        <q-btn v-if="env.DEV" flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn>
+        <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
+        <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn>
         <q-btn flat :color="validatePrepParams(io) ? 'primary': 'red'" 
               :disable="inProgress || !validatePrepParams(io)" 
               @click="prepare">Generate Protocols</q-btn>
@@ -92,7 +92,6 @@ export default defineComponent({
               },
   setup (props, ctx) {
     const $r = useDMRIPrep();
-    const env = process.env;
     const splitterModel = ref(50);
     const tab = ref<string>(null);
     const logBox = ref(null);
@@ -190,7 +189,6 @@ export default defineComponent({
     onUnmounted(() => {
     });
     return {
-      env,
       splitterModel,
       tab,
       onProtocolsChanged,

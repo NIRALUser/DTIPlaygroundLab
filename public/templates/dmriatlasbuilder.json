@@ -54,8 +54,8 @@
                     "m_NeedToBeCropped" : true
                   },
                   "caption": "Cropping Sizes",
-                  "value": [50,50,50],
-                  "type": "array",
+                  "value": "50,50,50",
+                  "type": "string",
                   "size": 3,
                   "description" : "None"
                },
