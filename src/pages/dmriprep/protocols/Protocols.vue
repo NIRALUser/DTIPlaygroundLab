@@ -70,6 +70,7 @@
                                  <q-separator/>
                                  <q-item dense 
                                          clickable 
+                                         :disable="disable"
                                          class="q-pa-auto col-12 text-bold text-primary" 
                                          v-for="m in app.modules.user" 
                                          :key="m.path"
