@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="q-pt-none col-10">
-                     <RemoteFileNavigator :root="rootDir.val" :directory="directory" :multiple="multiple" v-model="selectedFiles"/>
+                     <RemoteFileNavigator :root="root" :directory="directory" :multiple="multiple" v-model="selectedFiles" v-on:changed-dir="onChangedDir"/>
                 </div>
               </div>
       </div>
@@ -45,16 +45,19 @@ export default defineComponent({
       type: Boolean,
       required: false,
       default: false,      
+    },
+    root: {
+      type: String,
+      required: false,
+      default: '/'
     }
   },
   components: { RemoteFileNavigator  },
   setup (props, ctx) {
     const isOpen = ref(false);
     const selectedFiles = ref<any[]>([]);
-    const rootDir = reactive<any>({val: '/'});
 
     function goUpperDir(ev) {
-      rootDir.val = `${rootDir.val}/..`;
     }
     function closeModal(save) {
       if (save) {
@@ -66,16 +69,19 @@ export default defineComponent({
       isOpen.value = true
       selectedFiles.value = []
     }
+    function onChangedDir(ev) {
+      ctx.emit('changed-dir', ev);
+    }
+
     onMounted(() => {
-      rootDir.val = '/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti';
     });
     return {
       isOpen,
       closeModal,
       openModal,
       selectedFiles,
-      rootDir,
       goUpperDir,
+      onChangedDir,
     };
   }
 });

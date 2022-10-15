@@ -53,7 +53,7 @@ export default defineComponent({
     root: {
       type: String,
       required: false,
-      default: '/home/scalphunter/Downloads',
+      default: '/',
     },
     multiple: {
       type: Boolean,
@@ -80,6 +80,7 @@ export default defineComponent({
       currentRoot.value = rootdir;
       const resp = await client.listFiles(currentRoot.value);
       files.value = resp.data;
+      ctx.emit('changed-dir', currentRoot.value);
     }
     function onFileSelected (ev, file) {
       selectedFiles.value = [];

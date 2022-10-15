@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <PromptDialog ref="promptDialog" v-model="newname"/>
     <ConfirmDialog ref="confirmDialogDelete" v-model="confirmed"/>
-    <RemoteFileSelectDialog ref="fileDialog" multiple root="/mnt/niral/Zylka/DTI/tests-dmriatlasbuilder/images_dti" v-model="selectedFiles"/>
+    <RemoteFileSelectDialog ref="fileDialog" multiple :root="root" v-model="selectedFiles" v-on:changed-dir="onChangedDir"/>
     <div class="row">
         <div><q-btn  :disable="disable" color="primary" flat icon="content_paste" @click="newTree">Clear HBuild</q-btn ><q-tooltip>Clear current tree</q-tooltip></div>
         <div><q-btn  :disable="disable" color="primary" flat icon="folder_open" @click="loadTree">Open HBuild</q-btn ><q-tooltip>Open hbuild file in json format</q-tooltip></div>
@@ -96,6 +96,10 @@ export default defineComponent({
     disable: {
       type: Boolean,
       default: false
+    },
+    root: {
+      type: String,
+      default: '/'
     }
   },
   components: {  
@@ -207,7 +211,9 @@ export default defineComponent({
       const node = dataQTree.value.getNodeByKey(id);
       node.files = node.files.filter((x) => x !== file );
     }
-
+    function onChangedDir(ev) {
+      ctx.emit('changed-dir', ev);
+    }
     watch(nodes, (nv, ov) => {
       const text = JSON.stringify(nodes, null, 2);
       ctx.emit('update:modelValue', nodes);
@@ -274,6 +280,7 @@ export default defineComponent({
       fileInput,
       localFile,
       removeFileFromNode,
+      onChangedDir,
     };
   }
 });

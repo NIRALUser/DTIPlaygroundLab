@@ -62,7 +62,7 @@
                     <template v-else-if="paramType(param.type) === 'filepath-remote'">
                        <div class="row">
                         <div class="col-12">
-                           <RemoteFileInput :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
+                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -72,7 +72,7 @@
                     <template v-else-if="paramType(param.type) === 'dirpath-remote'">
                        <div class="row">
                         <div class="col-12">
-                           <RemoteFileInput :disable="disable || param.disabled" v-model="parameters.val[param.name]" directory :label="param.caption"/>
+                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled" v-model="parameters.val[param.name]" directory :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -132,6 +132,10 @@ export default defineComponent({
     disable : {
       type: Boolean,
       default: false
+    },
+    root: {
+      type: String,
+      default: '/'
     }
   },
   components: { 
@@ -147,6 +151,9 @@ export default defineComponent({
     function onDev(ev) {
       console.log(parameters.val);
     }
+    function onChangedDir(ev) {
+      ctx.emit('changed-dir', ev);
+    }
     watch(currentTemplate, (nv, ov) => {
       parameters.val = props.modelValue;
     });
@@ -158,6 +165,7 @@ export default defineComponent({
       onDev,
       conditionCheck,
       paramType,
+      onChangedDir,
 
     };
   }

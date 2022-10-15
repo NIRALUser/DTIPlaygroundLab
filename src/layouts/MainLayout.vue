@@ -102,6 +102,7 @@ export default defineComponent({
     }
     onMounted(async () => {
       $n.notify({ message : "Welcome to DTI Playground", color: "green", timeout: 1000});
+      $g.getApplicationInfo();
     });
     return {
       essentialLinks: linksList,

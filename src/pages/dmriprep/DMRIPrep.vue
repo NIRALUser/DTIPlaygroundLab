@@ -50,10 +50,10 @@
                   <div>
                     <q-tab-panels v-model="tab" animated >
                       <q-tab-panel name="pipeline">
-                        <Protocols :disable="inProgress" v-on:changed-param="onChanged"/>
+                        <Protocols :root="root" v-on:changed-dir="onChangedDir" :disable="inProgress" v-on:changed-param="onChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="settings">
-                          <AutoForm v-if="app" :disable="inProgress" v-model="io" :template="app.protocol_template.ui.execution" v-on:changed-param="onChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" v-if="app" :disable="inProgress" v-model="io" :template="app.protocol_template.ui.execution" v-on:changed-param="onChanged"/>
                       </q-tab-panel>
                     </q-tab-panels>
                   </div>
@@ -96,6 +96,7 @@ export default defineComponent({
     const tab = ref<string>(null);
     const logBox = ref(null);
     const hasRun = ref(false);
+    const root = ref<string>('/');
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -143,6 +144,9 @@ export default defineComponent({
     function saveCacheItemsOptions() {
       sessionStorage.setItem('dmriprep-io', JSON.stringify(io.value));
     }
+    function saveCacheWorkingDir() {
+      sessionStorage.setItem('dmriprep-workingdir', root.value);
+    }
     function loadCachedTabIndex() {
       if (!('dmriprep-tab' in sessionStorage)) {
         tab.value = 'hbuild';
@@ -160,6 +164,11 @@ export default defineComponent({
       const cachedParams = JSON.parse(sessionStorage.getItem('dmriprep-io'));
       io.value = cachedParams;
     }
+    function loadCachedWorkingDir() {
+      if (!('dmriprep-workingdir' in sessionStorage)) return;
+      const cachedParams = sessionStorage.getItem('dmriprep-workingdir');
+      root.value = cachedParams;    
+    }
     function onChanged(ev) {
       saveCacheItemsOptions();
       saveCacheItemsPipeline();
@@ -167,7 +176,10 @@ export default defineComponent({
       // console.log('Pipeline',pipeline.value);
       // console.log('Options',io.value);
     }
-
+    function onChangedDir(ev) {
+      root.value = ev;
+      saveCacheWorkingDir();
+    }
     watch(app, (nv, ov) => {
       console.log(app.value);
     });
@@ -185,6 +197,8 @@ export default defineComponent({
       loadCachedItemsOptions();
       loadCachedTabIndex();
       $g.setApplicationName('Prep');
+      root.value = $g.applicationInfo.home_dir;
+      loadCachedWorkingDir();
     });
     onUnmounted(() => {
     });
@@ -208,7 +222,9 @@ export default defineComponent({
       isFailed,
       hasRun,
       validatePrepParams,
-      onChanged
+      onChanged,
+      root,
+      onChangedDir,
     }
   }
 });

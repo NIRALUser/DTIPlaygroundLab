@@ -53,20 +53,20 @@
                   <div>
                     <q-tab-panels v-model="tab" animated >
                       <q-tab-panel name="hbuild">
-                        <HBuild :disable="running" v-model="hbuild" v-on:changed-param="onParamChangedHbuild"/>
+                        <HBuild :disable="running" v-model="hbuild" v-on:changed-param="onParamChangedHbuild" :root="root" v-on:changed-dir="onChangedDir"/>
                       </q-tab-panel>
                       <q-tab-panel name="affineatlas">
-                          <AutoForm :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="diffeomorphicatlas">
                           <EditableTable :disable="running" v-model = "greedy" v-on:changed-param="onParamChangedGreedy"/>
                           <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="finalresample">
-                          <AutoForm :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                       <q-tab-panel name="settings">
-                          <AutoForm :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" v-on:changed-param="onParamChanged"/>
                       </q-tab-panel>
                     </q-tab-panels>
                   </div>
@@ -117,6 +117,7 @@ export default defineComponent({
     const tab = ref<string>(null);
     const logBox = ref(null);
     const hasRun = ref(false);
+    const root = ref<string>('/');
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -203,6 +204,9 @@ export default defineComponent({
     function saveCacheItemsParams() {
       sessionStorage.setItem('dmriatlasbuilder-parameters', JSON.stringify(parameters.value));
     }
+    function saveCachedWorkingDir() {
+      sessionStorage.setItem('dmriatlasbuilder-workingdir', root.value);
+    }
     function loadCachedTabIndex() {
       if (!('dmriatlasbuilder-tab' in sessionStorage)) {
         tab.value = 'hbuild';
@@ -225,6 +229,14 @@ export default defineComponent({
       const cachedParams = JSON.parse(sessionStorage.getItem('dmriatlasbuilder-parameters'));
       parameters.value = cachedParams;
     }
+    function loadCachedWorkingDir() {
+      if (!('dmriatlasbuilder-workingdir' in sessionStorage)) return;
+      root.value = sessionStorage.getItem('dmriatlasbuilder-workingdir');
+    }
+    function onChangedDir(ev) {
+      root.value = ev;
+      saveCachedWorkingDir();
+    }
     watch(message, (nv,ov) => {
       $n.notify(message.value);
     })
@@ -235,7 +247,6 @@ export default defineComponent({
       loadCachedItemsParams();
       loadCachedItemsTree();
       loadCachedItemsGreedy();
-      
     });
     onMounted(async () => {
       if (!parameters.value) {
@@ -249,6 +260,8 @@ export default defineComponent({
       }
       loadCachedTabIndex();
       $g.setApplicationName('Atlas');
+      root.value = $g.applicationInfo.home_dir;
+      loadCachedWorkingDir();
     });
     onUnmounted(() => {
     });
@@ -272,7 +285,9 @@ export default defineComponent({
       success,
       failed,
       hasRun,
-      validateAtlasParams
+      validateAtlasParams,
+      root,
+      onChangedDir
     }
   }
 });

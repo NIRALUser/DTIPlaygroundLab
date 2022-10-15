@@ -1,7 +1,7 @@
 <template>
       <div>
         <ConfirmDialog ref="confirmDialogDelete" v-model="confirmed"/>
-        <RemoteFileSelectDialog ref="fileDialog" root="/" v-model="selectedFiles"/>
+        <RemoteFileSelectDialog :root="root" v-on:changed-dir="onChangedDir" ref="fileDialog" root="/" v-model="selectedFiles"/>
           <div class="row">
                 <div><q-btn  :disable="disable"
                              color="primary" 
@@ -131,9 +131,9 @@
                           </q-item>
                           <q-separator/>
                           <q-item-label overline>Protocol</q-item-label>
-                          <AutoForm :disable="disable" :key = "`${pipeline[currentIndex].id}-protocol`" v-model="pipeline[currentIndex].value.protocol" :template="pipeline[currentIndex].template.protocol" v-on:changed-param="onChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="disable" :key = "`${pipeline[currentIndex].id}-protocol`" v-model="pipeline[currentIndex].value.protocol" :template="pipeline[currentIndex].template.protocol" v-on:changed-param="onChanged"/>
                           <q-item-section><q-item-label overline>Execution option</q-item-label></q-item-section>
-                          <AutoForm :disable="disable" :key = "`${pipeline[currentIndex].id}-options`" v-model="pipeline[currentIndex].value.options" :template="pipeline[currentIndex].template.options"  v-on:changed-param="onChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir"  :disable="disable" :key = "`${pipeline[currentIndex].id}-options`" v-model="pipeline[currentIndex].value.options" :template="pipeline[currentIndex].template.options"  v-on:changed-param="onChanged"/>
                       </q-list>
                   </div>
                 </template>
@@ -167,6 +167,10 @@ export default defineComponent({
     disable: {
       type: Boolean,
       default: false
+    },
+    root: {
+      type: String,
+      default: '/'
     }
   },
   components: {  
@@ -254,6 +258,9 @@ export default defineComponent({
     function onChanged(ev) {
         ctx.emit('changedParam', ev);
     }
+    function onChangedDir(ev) {
+        ctx.emit('changed-dir', ev);
+    }
     watch(confirmed, (nv, ov) => {
         if(confirmed.value) {
             deleteModule(currentIndex.value);
@@ -304,6 +311,7 @@ export default defineComponent({
       deleteModule,
       onDeleteModule,
       confirmDialogDelete,
+      onChangedDir
     };
   }
 });

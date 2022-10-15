@@ -3,19 +3,6 @@ import Client from 'src/api/client';
 import { SERVER_URL } from 'src/environments';
 import { getUUID } from 'src/utils';
 
-export const useGlobalVariables = defineStore('useGlobalvariables', {
-  state: () => ({
-    currentApplication : null
-  }),
-  getters: {
-  
-  },
-  actions: {
-    setApplicationName(name) {
-      this.currentApplication = name;
-    }
-  }
-});
 
 
 export const useClientStore = defineStore('apiClient', {
@@ -69,3 +56,38 @@ export const useInterval = defineStore('timeInterval', {
   }
 });
 
+export const useGlobalVariables = defineStore('useGlobalvariables', {
+  state: () => ({
+    currentApplication : null,
+    _applicationInfo: {},
+    _userData: {},
+  }),  
+  getters: {
+      applicationInfo(state) {
+      return state._applicationInfo;
+    },
+    userData(state) {
+      return state._userData;
+    }
+  },
+  actions: {
+    async initialize() {
+      const $c = useClientStore();
+      this.client = await $c.client;
+      await this.getApplicationInfo();
+    },
+    setApplicationName(name) {
+      this.currentApplication = name;
+    },
+    setWorkingDirectory(dir) {
+      this._userData.workingDirectory = dir;
+    },
+    async getApplicationInfo() {
+      const $c = useClientStore();
+      const client = await $c.client;
+      const { data } = await client.getAppInfo();
+      this._applicationInfo = data;
+      console.log(data); 
+    }
+  }
+});

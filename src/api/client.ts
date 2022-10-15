@@ -52,6 +52,13 @@ export default class Client {
       throw e;
     });
   }
+  async getAppInfo(): Promise<any> {
+    return this.axios.get('/api/v1/app').then((r) => {
+      return r.data;
+    }).catch((e) => {
+      throw e;
+    });
+  }
 
   // API file browser
   async listFiles(rootdir: string): Promise<any[]> {
