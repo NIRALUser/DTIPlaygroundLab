@@ -28,7 +28,6 @@ export default boot(({ app }) => {
   //       so you can easily perform requests against your app's API
 
   app.use(VueShowdownPlugin);
-
 });
 
 export { api };

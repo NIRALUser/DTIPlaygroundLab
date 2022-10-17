@@ -8,6 +8,8 @@ const routes: RouteRecordRaw[] = [
                { path: '/about', component: () => import('pages/AboutPage.vue')},
                { path: '/dmriatlasbuilder', component: () => import('pages/dmriatlasbuilder/DMRIAtlasBuilder.vue')},
                { path: '/dmriprep', component: () => import('pages/dmriprep/DMRIPrep.vue')},
+               { path: '/dmriviewer', component: () => import('pages/dmriviewer/DMRIViewer.vue')},
+               { path: '/moduleeditor', component: () => import('pages/moduleeditor/ModuleEditor.vue')},
     ],
   },
   // {

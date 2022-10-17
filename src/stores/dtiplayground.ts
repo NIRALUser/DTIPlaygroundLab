@@ -87,7 +87,6 @@ export const useGlobalVariables = defineStore('useGlobalvariables', {
       const client = await $c.client;
       const { data } = await client.getAppInfo();
       this._applicationInfo = data;
-      console.log(data); 
     }
   }
 });

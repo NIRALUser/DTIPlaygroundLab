@@ -26,6 +26,18 @@ export function moveArrayElement(arr, from, to) {
 
 }
 
+// Path 
+
+export function ParentNameFromPath(path: string) {
+    const tmp = path.split('/');
+    const parent = tmp.splice(0,tmp.length-1).join('/');
+    if (parent.trim() ==='') return [ '/', '' ]
+    const name = tmp[tmp.length-1];
+    return [parent, name];
+}
+
+
+// Router
 export function generateRouteByQuery(currentRoute: any, query: any) {
   const route = currentRoute;
   const newroute = {

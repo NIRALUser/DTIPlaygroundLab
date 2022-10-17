@@ -7,7 +7,7 @@
                     <div class="q-pa-xs text-h6 bg-primary text-white row">
                       <div class="q-pa-xs text-h5 col-sm-8 col-xs-2" align="left">
 <!--                           <q-icon name="folder" color="white"/> -->
-                        <q-btn icon="turn_left" flat @click="goUpperDir"/>
+                        <q-btn icon="turn_left" flat @click="goUpperDir(root)"/>
                       </div>
                       <div align="right" class="q-pa-xs text-white col-sm-4 col-xs-10">
                           <q-btn flat dense label="Cancel" class="text-white" v-close-popup />
@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="q-pt-none col-10">
-                     <RemoteFileNavigator :root="root" :directory="directory" :multiple="multiple" v-model="selectedFiles" v-on:changed-dir="onChangedDir"/>
+                     <RemoteFileNavigator ref="fileNavigator" :root="root" :directory="directory" :multiple="multiple" v-model="selectedFiles" v-on:changed-dir="onChangedDir"/>
                 </div>
               </div>
       </div>
@@ -28,6 +28,7 @@
 
 import { defineComponent, onMounted, ref, computed, watchEffect, reactive } from 'vue';
 import RemoteFileNavigator from 'src/components/RemoteFileNavigator.vue';
+import { ParentNameFromPath } from 'src/utils';
 
 export default defineComponent({
   props: { 
@@ -56,8 +57,16 @@ export default defineComponent({
   setup (props, ctx) {
     const isOpen = ref(false);
     const selectedFiles = ref<any[]>([]);
+    const fileNavigator =ref(null);
 
+    function onChangedDir(ev) {
+      ctx.emit('changed-dir', ev);
+    }
+    
     function goUpperDir(ev) {
+      const [ newdir, name ] = ParentNameFromPath(props.root);
+      fileNavigator.value.changeRoot(newdir);
+      onChangedDir(newdir);
     }
     function closeModal(save) {
       if (save) {
@@ -69,9 +78,7 @@ export default defineComponent({
       isOpen.value = true
       selectedFiles.value = []
     }
-    function onChangedDir(ev) {
-      ctx.emit('changed-dir', ev);
-    }
+
 
     onMounted(() => {
     });
@@ -82,6 +89,7 @@ export default defineComponent({
       selectedFiles,
       goUpperDir,
       onChangedDir,
+      fileNavigator,
     };
   }
 });

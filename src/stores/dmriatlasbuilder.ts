@@ -2,14 +2,18 @@ import { defineStore, storeToRefs } from 'pinia';
 import { useInterval, useClientStore, useGlobalNotification } from './dtiplayground';
 import { getUUID } from 'src/utils';
 
-export const useDMRIAtlasRemoteExecutor = defineStore('remoteDMRIAtlasExecutor', {
+export const useDMRIAtlas = defineStore('remoteDMRIAtlas', {
   state: () => ({
+    app: null,
+    client: {},
     inProgress : false,
     isSuccessful : false,
     isFailed: false,
     logFilePath : '',
     lastLogLine : 0,
     logText: '',
+    status: {},
+    outputDir: '',
     progressMessage: {},
     executionId: getUUID(),
   }),
@@ -25,6 +29,21 @@ export const useDMRIAtlasRemoteExecutor = defineStore('remoteDMRIAtlasExecutor',
       this.lastLogLine = 0;
       this.logText = '';
     },
+    async initialize() {
+      if (this.app) return;
+      try {
+        const $c = useClientStore();
+        const client = await $c.client;
+        const { data } = await client.DMRIAtlasbuilder_getApplicationTemplate();
+        this.app = data
+        this.client = client;
+        this.progressMessage = {message: 'Application data loaded', timeout: 1000, color : 'green'};
+      } catch (e) {
+        console.log(e);
+        if (e.response !== undefined ) this.progressMessage = {message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]};
+        else this.progressMessage = {message: 'Connection Error', timeout: 1000, color : 'red', actions: [{icon: 'close'}]};
+      }       
+    },
     async  attachLogfile() {
       const $i = useInterval();
       const $c = useClientStore();
@@ -35,7 +54,10 @@ export const useDMRIAtlasRemoteExecutor = defineStore('remoteDMRIAtlasExecutor',
             this.logText = this.logText + data.join('')
             this.lastLogLine = this.lastLogLine + data.length;
           });
-          
+          await client.getTextWholeFile(`${this.outputDir}/status.json`).then((r) => {
+            const { data } = r;
+            this.status = JSON.parse(data);
+          });
         },5000);
     },
     async  detachLogfile() {
@@ -56,6 +78,7 @@ export const useDMRIAtlasRemoteExecutor = defineStore('remoteDMRIAtlasExecutor',
     },
     async executeDMRIAtlasBuilder(payload) {
       this.logFilePath = `${payload.output_dir}/log.txt`;
+      this.outputDir = payload.output_dir;
       const $c = useClientStore();
       const $n = useGlobalNotification();
       const client = await $c.client;
@@ -81,6 +104,11 @@ export const useDMRIAtlasRemoteExecutor = defineStore('remoteDMRIAtlasExecutor',
           this.detachLogfile();
         },10000);
       }      
+    },
+    async cancel() {
+        const $c = useClientStore();
+        const client = await $c.client;
+        await client.KillByPID(this.status.pid);
     }
   }
 });

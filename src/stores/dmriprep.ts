@@ -15,6 +15,7 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
     logFilePath : '',
     lastLogLine : 0,
     logText: '',
+    status: {},
     progressMessage: {},
     executionId: getUUID(),
   }),
@@ -59,6 +60,10 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
             this.logText = this.logText + data.join('')
             this.lastLogLine = this.lastLogLine + data.length;
           });
+          await client.getTextWholeFile(`${this.execution.output_directory}/status.json`).then((r) => {
+            const { data } = r;
+            this.status = JSON.parse(data);
+          });
           
         },5000);
     },
@@ -98,7 +103,6 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
       try {
         const $c = useClientStore();
         const client = await $c.client;
-        console.log(this.execution);
         const payload = {
           output_dir: this.execution.output_directory,
           pipeline: this.pipeline.map((x) => [x.name,x.value]),
@@ -141,6 +145,11 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
           this.detachLogfile();
         },10000);
       }      
+    },
+    async cancel() {
+        const $c = useClientStore();
+        const client = await $c.client;
+        await client.KillByPID(this.status.pid);
     }
   }
 });

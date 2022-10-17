@@ -13,6 +13,7 @@
 
 import { defineComponent, onMounted, ref, computed, watch, reactive } from 'vue';
 import RemoteFileSelectDialog from 'src/components/RemoteFileSelectDialog.vue';
+import { ParentNameFromPath } from 'src/utils';
 
 export default defineComponent({
   props: { 
@@ -58,9 +59,10 @@ export default defineComponent({
       if (singleFile.val) {
         if (singleFile.val.trim() !== '')
         {
-          const tmp = singleFile.val.split('/');
-          const parent = tmp.splice(0,tmp.length-1).join('/');
-          const name = tmp[tmp.length-1];
+          // const tmp = singleFile.val.split('/');
+          // const parent = tmp.splice(0,tmp.length-1).join('/');
+          // const name = tmp[tmp.length-1];
+          const [ parent, name ] = ParentNameFromPath(singleFile.val);
           rootDir.value = parent;          
         }
       }

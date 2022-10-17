@@ -18,10 +18,11 @@
                   target="_blank" 
                   href="https://github.com/niraluser/dtiplayground">
                 {{ APP_TITLE }} <div class="q-pa-auto text-caption" >{{ currentApplication }} </div>
+
           </q-item>
         </q-toolbar-title>
 
-        <div> <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://www.med.unc.edu/psych/research/niral/">NIRAL</q-item> </div>
+        <div> <q-item dense class="q-pa-sm" tag="a" target="_blank" href="https://www.med.unc.edu/psych/research/niral/"><q-item-section side class="text-white text-caption">{{applicationInfo.hostname }} v{{ applicationInfo.version }} </q-item-section><q-item-section>NIRAL</q-item-section></q-item> </div>
       </q-toolbar>
     </q-header>
 
@@ -82,6 +83,18 @@ const linksList = [
     link: '#/dmriatlasbuilder'
   },
   {
+    title: 'DMRI Viewer',
+    caption: 'DMRI Image viewer',
+    icon: 'image',
+    link: '#/dmriviewer'
+  },
+  {
+    title: 'Module Editor',
+    caption: 'Edit custom modules and test',
+    icon: 'code',
+    link: '#/moduleeditor'
+  },
+  {
     title: 'About',
     caption: 'About DTI Playground',
     icon: 'info_outline',
@@ -96,7 +109,7 @@ export default defineComponent({
     const leftDrawerOpen = ref(false);
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
-    const { currentApplication } = storeToRefs($g);
+    const { currentApplication, applicationInfo } = storeToRefs($g);
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
     }
@@ -111,6 +124,7 @@ export default defineComponent({
       Router,
       APP_TITLE,
       currentApplication,
+      applicationInfo,
     };
   }
 });

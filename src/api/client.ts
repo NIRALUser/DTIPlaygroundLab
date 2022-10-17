@@ -60,6 +60,15 @@ export default class Client {
     });
   }
 
+  // General process 
+  async KillByPID(pid): Promise<any> {
+    return this.axios.delete(`/api/v1/process/${pid}`).then((r) => {
+      return r.data;
+    }).catch((e) => {
+      throw e;
+    });
+  }  
+
   // API file browser
   async listFiles(rootdir: string): Promise<any[]> {
     const payload = { params: { root_dir: rootdir }}
@@ -69,6 +78,7 @@ export default class Client {
       throw e;
     });
   }
+
   async getTextFileContent(path: string, last_line: number): Promise<any> {
     const payload = { params: { path, last_line }};
     return this.axios.get('/api/v1/files/get-text', payload).then((r) => {
@@ -77,6 +87,22 @@ export default class Client {
       throw e;
     });    
   }
+  async getTextWholeFile(path: string): Promise<any> {
+    const payload = { params: { path }};
+    return this.axios.get('/api/v1/files/get-text-whole', payload).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });    
+  }  
+  async getFileUrl(path: string): Promise<any> {
+    const payload = { params: { path }};
+    return this.axios.get('/api/v1/files/file-url', payload).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });    
+  }  
   async getReadMe(): Promise<any> {
     return this.axios.get('/api/v1/files/get-readme').then((r) => {
       return r.data;
@@ -116,6 +142,14 @@ export default class Client {
     });
   }  
   // DMRIAtlasbuilder
+  
+  async DMRIAtlasbuilder_getApplicationTemplate(): Promise<any> {
+    return this.axios.get('/api/v1/dmriatlasbuilder').then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });    
+  }
   async DMRIAtlasbuilder_generateOutputDirectory(payload: any): Promise<any> {
     return this.axios.post('/api/v1/dmriatlasbuilder/parameters', payload).then((response) => {
       return response.data;

@@ -30,6 +30,9 @@
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
               @click="execute">Execute</q-btn>
+        <q-btn v-if="running" flat color="red" 
+              @click="abort">Cancel</q-btn>
+
       </div>
       <div>
         <q-tabs
@@ -95,7 +98,7 @@ import LogBox from '/src/components/LogBox.vue';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification , useGlobalVariables } from 'src/stores/dtiplayground';
-import { useDMRIAtlasRemoteExecutor } from 'src/stores/dmriatlasbuilder';
+import { useDMRIAtlas } from 'src/stores/dmriatlasbuilder';
 import { hbuildFromQtree, convertABParameters } from './convert';
 import { validateAtlasParams } from './validation';
 
@@ -107,7 +110,7 @@ export default defineComponent({
                 LogBox
               },
   setup (props, ctx) {
-    const $r = useDMRIAtlasRemoteExecutor();
+    const $r = useDMRIAtlas();
     const splitterModel = ref(50);
     const hbuild = ref<any[]>([]);
     const parameters = ref<any>(null);
@@ -124,17 +127,11 @@ export default defineComponent({
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
 
-    const { inProgress : running, isSuccessful: success, logText: logtext, progressMessage : message, isFailed: failed } = storeToRefs($r);
+    const { app, status, inProgress : running, isSuccessful: success, logText: logtext, progressMessage : message, isFailed: failed } = storeToRefs($r);
 
     async function loadRemoteTemplates() {
-      const client = await $c.client;
-      const uri = `${ window.location.origin }/templates/dmriatlasbuilder.json`;
-      const { data } = await client.axios.get(uri);
-      template.value = data; 
-      const tables_uri = `${ window.location.origin }/templates/tables.json`;
-      const { data : tables } =  await client.axios.get(tables_uri);
-      template_greedy.value = tables.greedy;
-
+      template.value = app.value; 
+      template_greedy.value = app.value.tables.greedy;
     }
     function loadDefaultParameters() {
       let res = {};
@@ -237,6 +234,9 @@ export default defineComponent({
       root.value = ev;
       saveCachedWorkingDir();
     }
+    async function abort(ev) {
+      await $r.cancel()
+    }
     watch(message, (nv,ov) => {
       $n.notify(message.value);
     })
@@ -249,6 +249,7 @@ export default defineComponent({
       loadCachedItemsGreedy();
     });
     onMounted(async () => {
+      await $r.initialize();
       if (!parameters.value) {
         await loadRemoteTemplates();
         loadDefaultParameters();
@@ -287,7 +288,8 @@ export default defineComponent({
       hasRun,
       validateAtlasParams,
       root,
-      onChangedDir
+      onChangedDir,
+      abort,
     }
   }
 });

@@ -30,6 +30,8 @@
         <q-btn flat :color="validatePrepParams(io) ? 'primary': 'red'" 
               :disable="inProgress || !validatePrepParams(io)" 
               @click="execute">Execute</q-btn>
+        <q-btn v-if="inProgress" flat color="red" 
+              @click="abort">Cancel</q-btn>
       </div>
       <div>
         <q-tabs
@@ -37,8 +39,9 @@
           inline-label
           class="bg-white text-primary shadow-2"
         >
+              <q-tab name="settings" icon="image" ><div class="q-pa-sm text-bold gt-xs">Data</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
               <q-tab name="pipeline" icon="view_carousel"><div class="q-pa-sm text-bold gt-xs">QC Protocol</div><q-tooltip>QC Module Pipelining and protocol setup</q-tooltip></q-tab>
-              <q-tab name="settings" icon="settings" ><div class="q-pa-sm text-bold gt-xs">Execution</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
+
         </q-tabs>
       </div>
       <q-separator/>
@@ -93,7 +96,7 @@ export default defineComponent({
   setup (props, ctx) {
     const $r = useDMRIPrep();
     const splitterModel = ref(50);
-    const tab = ref<string>(null);
+    const tab = ref<string>('setting');
     const logBox = ref(null);
     const hasRun = ref(false);
     const root = ref<string>('/');
@@ -103,6 +106,7 @@ export default defineComponent({
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
     const { app, 
+            status,
             pipeline,
             execution : io,
             inProgress , 
@@ -130,12 +134,16 @@ export default defineComponent({
       sessionStorage.clear()
     }
     async function prepare(ev) {
-      $r.prepare();
+      await $r.prepare();
     }
 
     async function execute(ev) {
       hasRun.value = true;
-      $r.execute();
+      await $r.execute();
+    }
+
+    async function abort(ev) {
+      await $r.cancel();
     }
 
     function saveCacheItemsPipeline() {
@@ -214,6 +222,7 @@ export default defineComponent({
       io,
       prepare,
       execute,
+      abort,
       logText,
       logFilePath,
       logBox,

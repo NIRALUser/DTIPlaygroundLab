@@ -36,7 +36,15 @@
                     <template v-else-if="paramType(param.type) === 'select'">
                       <div class="row">
                         <div class="col-12">
-                           <q-select :disable="disable || param.disabled" dense :label="param.caption" :options="param.candidates.map((x) => x.value)"  v-model="parameters.val[param.name]">
+                           <q-select :disable="disable || param.disabled" map-options emit-value option-label="caption" dense :label="param.caption" :options="param.candidates"  v-model="parameters.val[param.name]">
+                                    <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+                                      <q-item v-bind="itemProps">
+                                        <q-item-section>
+                                          <q-item-label v-html="opt.caption" />
+                                        </q-item-section>
+                                        <q-tooltip>{{opt.description}}</q-tooltip>
+                                      </q-item>
+                                    </template>
                             </q-select>
                         </div>
                         <q-tooltip>
