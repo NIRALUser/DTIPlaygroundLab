@@ -35,7 +35,7 @@
         <q-item-label
           header
         >
-          Menu
+          <q-btn flat color="primary" @click="toggleLeftDrawer">Close Menu</q-btn>
         </q-item-label>
 
         <BaseMenu
@@ -95,10 +95,10 @@ const linksList = [
     link: '#/moduleeditor'
   },
   {
-    title: 'About',
-    caption: 'About DTI Playground',
+    title: 'Documentations',
+    caption: 'DTI Playground Documentations',
     icon: 'info_outline',
-    link: '#/about'
+    link: '#/docs'
   },
 ];
 

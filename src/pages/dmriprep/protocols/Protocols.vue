@@ -37,7 +37,7 @@
                   <div class="row">
                       <div class="col-6"> <!-- First Column -->
                            <div>
-                             <q-list bordered padding class="noselect">
+                             <q-list  padding class="module-list noselect">
                                  <q-item>
                                     <q-item-section>
                                         <q-item-label overline>SYSTEM MODULES</q-item-label>
@@ -317,3 +317,9 @@ export default defineComponent({
 });
 
 </script>
+<style>
+.module-list {
+  border-left: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+}
+</style>

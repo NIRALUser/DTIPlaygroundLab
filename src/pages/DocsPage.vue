@@ -18,7 +18,7 @@
             </div>
         </q-tab-panel>
         <q-tab-panel name="docs">
-            <div class="q-pa-auto row text-left">
+            <div class="q-pa-auto row text-left markdown-body">
               <q-card flat>
                 <q-card-section class="text-sm">
                  <VueShowdown :markdown="readme" flavor="github"/>
@@ -35,6 +35,7 @@
 
 import { defineComponent, onMounted , ref } from 'vue';
 import { useClientStore, useGlobalVariables } from 'src/stores/dtiplayground';
+import "github-markdown-css";
 
 export default defineComponent({
   setup (props, ctx) {

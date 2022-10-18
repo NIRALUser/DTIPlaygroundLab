@@ -1,6 +1,6 @@
 <template>
   <div>
-   <RemoteFileSelectDialog :root="rootDir" v-on:changed-dir="onChangedDir"  ref="fileDialog" :multiple="multiple" :directory="directory" v-model="selectedFiles.val"/>
+   <RemoteFileSelectDialog :extentions="extensions" :root="rootDir" v-on:changed-dir="onChangedDir"  ref="fileDialog" :multiple="multiple" :directory="directory" v-model="selectedFiles.val"/>
    <q-input  :disable="multiple || disable" clearable v-model = "singleFile.val" :label="label">
       <template v-slot:append>
         <q-icon name="attach_file" @click="openDialog"/>
@@ -41,6 +41,10 @@ export default defineComponent({
     root: {
       type: String,
       default: '/'
+    },
+    extensions: {
+      type: Array,
+      default: null
     }
   },
   components: { RemoteFileSelectDialog  },

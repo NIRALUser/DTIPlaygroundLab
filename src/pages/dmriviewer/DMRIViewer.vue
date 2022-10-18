@@ -5,7 +5,7 @@
           <q-spinner-cube
             class="q-ma-xs"
             size="sm"
-            :color="'black'"
+            :color="'secondary'"
           />
         </template>
         <template v-else>
@@ -41,11 +41,11 @@
       <div>
             <q-tab-panels v-model="tab" animated >
                   <q-tab-panel name="viewer-vtp">
-                        <template v-if="url">
+                        <template>
                         </template>
                         <div class="q-pa-auto row">
                             <div class="col-sm-12 col-xs-12"> 
-                                <TractViewer :url="url"/>
+                                <TractViewer/>
                             </div>
                         </div>
                   </q-tab-panel>
@@ -64,7 +64,7 @@ import lodash from 'lodash';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables } from 'src/stores/dtiplayground';
-import { useDMRIViewer } from 'src/stores/dmriviewer';
+import { useDMRIViewer_TractViewer } from 'src/stores/dmriviewer';
 import TractViewer from './viewers/TractViewer.vue';
 
 export default defineComponent({
@@ -72,10 +72,9 @@ export default defineComponent({
                 TractViewer
               },
   setup (props, ctx) {
-    const $r = useDMRIViewer();
+    const $r = useDMRIViewer_TractViewer();
     const tab = ref<string>('viewer-vtp');
     const root = ref<string>('/');
-    const url = ref<string | null>(null);
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -83,6 +82,7 @@ export default defineComponent({
     const $g = useGlobalVariables();
     const { app, 
             status,
+            geometry,
             inProgress , 
             isSuccessful, 
             isFailed } = storeToRefs($r);
@@ -95,11 +95,7 @@ export default defineComponent({
     function onChangedDir(ev) {
       root.value = ev;
     }
-    function loadImage(ev) {
-        url.value = 'http://localhost:6543/api/v1/download?path=%2Fmnt%2Fniral%2FZylka%2FDTI%2Ftests-dmriprep%2Ftests%2F20221022-test-8-vtp%2FMMU45938_DTI_HF_fix1_tractogram.vtp'
-    }
     function clearImage(ev) {
-        url.value = null;
     }
     watch(app, (nv, ov) => {
       console.log(app.value);
@@ -123,7 +119,6 @@ export default defineComponent({
       removeStorage,
       dumpParams,
       tab,
-      url,
     }
   }
 });

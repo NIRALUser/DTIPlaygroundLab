@@ -40,10 +40,52 @@
       <div>
             <q-tab-panels v-model="tab" animated >
                   <q-tab-panel name="editor">
-                     <prism-editor class="module-editor" v-model="code" :highlight="highlighter" line-numbers></prism-editor>
+                    <q-splitter 
+                          v-model="splitter1"
+                          vertical>
+                       <template v-slot:before>
+                          <div class="row">
+                                      <div class="col-12">
+                                               <q-scroll-area class="file-navigator-single" visible>
+                                                 <div class="col-4">
+                                                    <RemoteFileNavigator  :root="currentDir" singlecolumn v-on:open-file="onFileOpen" v-on:changed-dir="onChangedDir"/>
+                                                 </div>
+                                               </q-scroll-area>
+                                       </div>
+                          </div>
+                        </template>
+                        <template v-slot:after>
+                           <q-splitter 
+                                v-model="splitter2"
+                                vertical
+                                :limits="[1,99]">
+                                <template v-slot:before>
+                                  <div class="row">
+                                               <div :class="'col-12'">
+                                                      <q-scroll-area class="editor-single">
+                                                         <div>
+                                                           <code-editor v-model="currentCode" :lang="currentLanguage" />
+                                                         </div>
+                                                       </q-scroll-area>
+                                                </div>
+                                  </div>
+                                </template>
+                                <template v-slot:after >
+                                  <div class="row" v-if="isMarkdown">
+                                                <div  class="col-12 markdown-body">
+                                                      <q-scroll-area class="editor-single">
+                                                        <div>
+                                                         <VueShowdown :markdown="currentCode" flavor="github"/>
+                                                       </div>
+                                                     </q-scroll-area>
+                                                </div>
+                                   </div>
+                                 </template>
+                            </q-splitter>
+                         </template>
+                     </q-splitter>
                   </q-tab-panel>
                   <q-tab-panel name="terminal">
-                      <div> Terminal </div>
                   </q-tab-panel>
             </q-tab-panels>
       </div>
@@ -58,24 +100,20 @@ import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables } from 'src/stores/dtiplayground';
 import { useModuleEditor } from 'src/stores/moduleeditor';
-import { PrismEditor } from 'vue-prism-editor';
-import 'vue-prism-editor/dist/prismeditor.min.css';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
-
+import CodeEditor  from 'src/components/CodeEditor.vue';
+import RemoteFileNavigator from 'src/components/RemoteFileNavigator.vue';
+import "github-markdown-css";
 
 export default defineComponent({
   components: { 
-                PrismEditor
+                CodeEditor,
+                RemoteFileNavigator,
               },
   setup (props, ctx) {
     const $r = useModuleEditor();
     const tab = ref<string>('editor');
-    const root = ref<string>('/');
     const url = ref<string | null>(null);
-    const code = ref<string>(null);
+    const commands = ref<any[]>([]);
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
@@ -83,7 +121,13 @@ export default defineComponent({
     const $g = useGlobalVariables();
     const { app, 
             status,
-            inProgress , 
+            splitter1,
+            splitter2,
+            inProgress,
+            currentDir,
+            currentCode,
+            isMarkdown,
+            currentLanguage,
             isSuccessful, 
             isFailed } = storeToRefs($r);
 
@@ -93,11 +137,40 @@ export default defineComponent({
     function dumpParams(ev) {
     }
     function onChangedDir(ev) {
-      root.value = ev;
+      currentDir.value = ev;
     }
-    function highlighter(code) {
-      return highlight(code, languages.python);
+    async function onFileOpen(filename) {
+      console.log(filename);
+      const client = await $c.client;
+      try {
+        const { data } = await client.getTextWholeFile(filename);
+        currentLanguage.value = 'markup';
+        isMarkdown.value = false;
+        if (filename.endsWith('.json')) currentLanguage.value = 'json';
+        if (filename.endsWith('.py')) currentLanguage.value = 'python';
+        if (filename.endsWith('.js')) currentLanguage.value = 'js';
+        if (filename.endsWith('.ts')) currentLanguage.value = 'ts';
+        if (filename.endsWith('.sh')) currentLanguage.value = 'bash';
+        if (filename.endsWith('.html') || filename.endsWith('.xml') || filename.endsWith('.md')) currentLanguage.value = 'markup';
+        if (filename.endsWith('.c') || filename.endsWith('.cpp') || filename.endsWith('.h') || filename.endsWith('.hpp')) currentLanguage.value = 'clike';
+        if (filename.endsWith('.yml') || filename.endsWith('.yaml')) currentLanguage.value = 'yaml'
+        if (filename.endsWith('.md')) isMarkdown.value = true;
+        currentCode.value = data;        
+      } catch(e) {
+        $n.notify({message: 'Failed to load the text file', color:'red', timeout:1000});
+      }
     }
+    watch(isMarkdown, (nv, ov) => {
+      if(nv) {
+        splitter2.value = 50;
+      } else {
+        splitter2.value = 99;
+      }
+    });
+    watch(splitter2, (nv) => {
+    });
+    watch(currentDir, (nv, ov) => {
+    });
     watch(app, (nv, ov) => {
       console.log(app.value);
     });
@@ -107,6 +180,7 @@ export default defineComponent({
     onBeforeMount(async () => {
     });
     onMounted(async () => {
+      await $g.initialize()
       await $r.initialize();
       $g.setApplicationName('Editor');
     });
@@ -120,29 +194,39 @@ export default defineComponent({
       inProgress,
       isSuccessful,
       isFailed,
-      code,
-      highlighter
+      commands,
+      onFileOpen,
+      currentCode,
+      currentDir,
+      currentLanguage,
+      isMarkdown,
+      splitter1,
+      splitter2,
     }
   }
 });
 
 </script>
 <style>
-  /* required class */
-  .module-editor {
-    /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
-    background: #2d2d2d;
-/*    background: transparent;*/
-    color: #ccc;
-
-    /* you must provide font-family font-size line-height. Example: */
-    font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    padding: 5px;
-  }
-
-.prism-editor__textarea:focus {
-  outline: none;
+.file-navigator-single {
+  font-size: 0.9em;
+  padding: 10px;
+  padding-left: 0px;
+  border: 1px solid lightgray;
+  border-right: none;
+/*  width: 30vh;*/
+  height: 80vh;
+}
+.editor-single {
+  font-size: 0.8em;
+  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  border: 1px solid lightgray;
+  border-left: none;
+  border-right: none;
+/*  width: 30vh;*/
+  height: 80vh;
 }
 </style>

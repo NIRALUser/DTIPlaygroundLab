@@ -1,15 +1,24 @@
 <template>
   <div class="q-pa-auto content-body">
     <div class="q-pa-auto row">
-      <div class="q-pa-auto col-sm-4 col-xs-12">
-        <q-input ref="fileInput" dense v-model="localFile" type="file" accept=".vtp"></q-input>
+      <div class="q-pa-auto col-sm-5 col-xs-12">
+        <q-input ref="fileInput" dense v-model="localFile" type="file" accept=".vtp">
+            <template v-slot:append="prop">
+              <q-btn flat color="primary" icon="refresh" @click="loadFromFile"></q-btn>
+            </template>
+        </q-input>
+        <q-input dense v-model="url" type="text" label="File URL" clearable>
+            <template v-slot:append="prop">
+              <q-btn flat color="primary" icon="play_arrow" @click="loadFromUrl"></q-btn>
+            </template>
+        </q-input>
         <q-select v-model="background" dense map-options  emit-value :options="backgroundOptions" label="Background Color"/>
-        <q-select v-if="geometryViewer" v-model="colorBy" dense map-options  emit-value :options="geometryViewer.colorByOptions" label="Color By"/>
-        <q-select v-if="geometryViewer" v-model="representation" dense map-options  emit-value :options="geometryViewer.representationList" label="Representation"/>
-        <q-select v-if="geometryViewer" v-model="colorPreset" dense map-options options-dense emit-value :options="geometryViewer.colorPresets" label="Color Preset"/>
-        <q-select v-if="geometryViewer" v-model="component" dense map-options  emit-value :options="geometryViewer.componentOptionList" label="Component"/>
-        <template v-if="geometryViewer">
-          <div class="row" v-if="geometryViewer.source">
+        <q-select v-if="geometry" v-model="colorBy" dense map-options  emit-value :options="geometry.colorByOptions" label="Color By"/>
+        <q-select v-if="geometry" v-model="representation" dense map-options  emit-value :options="geometry.representationList" label="Representation"/>
+        <q-select v-if="geometry" v-model="colorPreset" dense map-options options-dense emit-value :options="geometry.colorPresets" label="Color Preset"/>
+        <q-select v-if="geometry" v-model="component" dense map-options  emit-value :options="geometry.componentOptionList" label="Component"/>
+        <template v-if="geometry">
+          <div class="row" v-if="geometry.source">
             <div class="q-pa-xs col-12">
               <q-item>
                 <q-item-section>
@@ -24,7 +33,7 @@
           </div>
         </template>      
       </div>
-      <div class="q-pa-auto col-sm-8 col-xs-12">
+      <div class="q-pa-auto col-sm-7 col-xs-12 root-container">
         <q-linear-progress v-if="progress > 0" :value="progress" class="q-mt-md" />
         <div ref="content" class="vtk-content"> </div>
       </div>
@@ -42,6 +51,7 @@ import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables 
 import vtkURLExtract from '@kitware/vtk.js/Common/Core/URLExtract';
 import { load } from './tract';
 import { Geometry } from 'src/components/geometry';
+import { useDMRIViewer_TractViewer } from 'src/stores/dmriviewer';
 
 const backgroundOptions = [
   { value: [0,0,0], label: 'Black'},
@@ -50,31 +60,33 @@ const backgroundOptions = [
 
 export default defineComponent({
   props: {
-    url: {
-      type: String,
-    }
   },
   components: { 
 
               },
   setup (props, ctx) {
     const root = ref<string>('/');
-    const localFile = ref();
-    const background = ref([0,0,0]);
-    const colorBy = ref('Solid Color');
-    const representation = ref('Surface');
-    const colorPreset = ref('erdc_rainbow_bright');
-    const component = ref('Magnitude');
-    const opacity = ref(100);
     const progress = ref(0);
-    const currentFileOrUrl = ref<any | null>(null);
-    const geometry = ref<any | null>(null);
-    const userParams = ref<any>(vtkURLExtract.extractURLParameters())
-    const container = ref<any>();
-    const geometryViewer = ref<Geometry | null>(null);
+    // const container = ref<any>();
     const $c = useClientStore();
     const $q = useQuasar();
-    const url_computed = computed(() => props.url);
+    const $r = useDMRIViewer_TractViewer();
+    const { app, 
+            status,
+            userParams,
+            localFile,
+            url,
+            container,
+            background,
+            colorBy,
+            representation,
+            colorPreset,
+            component,
+            geometry,
+            opacity,
+            inProgress , 
+            isSuccessful, 
+            isFailed } = storeToRefs($r);
 
     function progressCallback(progressEvent: any) {
         if (progressEvent.lengthComputable) {
@@ -84,48 +96,54 @@ export default defineComponent({
           progress.value = 0;
         }
     }
-    function clear(ev) {
-      geometryViewer.value.emptyContainer();
+    async function clear(ev) {
+      localFile.value = null;
+      url.value = null;
+      await geometry.value.emptyContainer();
     }
-    watch(url_computed, async (nv, ov) => {
-
-      userParams.value.fileURL = nv;
-      geometryViewer.value.setBackground(background.value);
-      geometryViewer.value.load(userParams.value, progressCallback );
-
-    });
-    watch(currentFileOrUrl, (nv, ov)=> {
-
-    });
+    async function loadFromFile() {
+      if (!localFile.value) return;
+      geometry.value.setBackground(background.value);
+      $r.loadFromFile();
+    }
+    async function loadFromUrl(ev) {
+      if (!url.value) return;
+      geometry.value.setBackground(background.value);
+      $r.loadFromUrl(progressCallback);
+    }
     watch(localFile, (nv, ov) => {
-      userParams.value.files = nv;
-      geometryViewer.value.setBackground(background.value);
-      geometryViewer.value.load(userParams.value, progressCallback );
+      loadFromFile();
     });
     watch(colorBy, (nv, ov) => {
-      geometryViewer.value.updateColorBy(nv);
+      geometry.value.updateColorBy(nv);
     });
     watch(component, (nv, ov) => {
-      geometryViewer.value.updateColorByComponent(nv);
+      geometry.value.updateColorByComponent(nv);
     });
     watch(background, (nv, ov) => {
-      if (!geometryViewer.value) return;
-      geometryViewer.value.setBackground(nv);
+      if (!geometry.value) return;
+      geometry.value.setBackground(nv);
     });
     watch(representation, (nv, ov) => {
-      geometryViewer.value.updateRepresentation(nv);
+      geometry.value.updateRepresentation(nv);
     });
     watch(colorPreset, (nv, ov)=> {
-      geometryViewer.value.applyPreset(nv);
+      geometry.value.applyPreset(nv);
     });
     watch(opacity, (nv, ov) => {
-      geometryViewer.value.updateOpacity(nv);
+      geometry.value.updateOpacity(nv);
     });
     onBeforeMount(async () => {
     });
     onMounted(async () => {
-      container.value = await document.querySelector('div.vtk-content');
-      geometryViewer.value = new Geometry(container.value,userParams.value);
+      const rootcontainer = document.querySelector('div.root-container');
+      if (!geometry.value) {
+        await $r.initializeTractView();
+        rootcontainer.appendChild(container.value);
+      }
+      else {
+        rootcontainer.appendChild(container.value);
+      }
     });
     onUnmounted(() => {
     });
@@ -134,13 +152,16 @@ export default defineComponent({
       background,
       representation,
       colorPreset,
-      geometryViewer,
+      geometry,
       component,
       colorBy,
       opacity,
       progress,
       localFile,
       clear,
+      url,
+      loadFromUrl,
+      loadFromFile,
     }
   }
 });
@@ -151,4 +172,7 @@ export default defineComponent({
   height:400px;
   width:400px;
 }*/
+.root-container {
+  padding: 10px;
+}
 </style>

@@ -63,7 +63,7 @@ export const useGlobalVariables = defineStore('useGlobalvariables', {
     _userData: {},
   }),  
   getters: {
-      applicationInfo(state) {
+    applicationInfo(state) {
       return state._applicationInfo;
     },
     userData(state) {

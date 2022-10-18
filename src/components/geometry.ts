@@ -36,10 +36,8 @@ export class Geometry {
   fullScreenRenderWindow: any;
   renderer: any;
   renderWindow: any;
-  rootControllerContainer: any;
   fpsMonitor: any;
   fpsElm: any;
-  addDataSetButton: any;
   lutName: string;
   field: string;
   vtpReader: any;
@@ -84,20 +82,14 @@ export class Geometry {
   }
 
   prepare() {
-    this.rootControllerContainer = document.createElement('div');
-    this.rootControllerContainer.setAttribute('class', this.style.rootController);
-
-    this.addDataSetButton = document.createElement('img');
-    this.addDataSetButton.setAttribute('class', this.style.button);
-    this.addDataSetButton.addEventListener('click', () => {
-      const isVisible = this.rootControllerContainer.style.display !== 'none';
-      this.rootControllerContainer.style.display = isVisible ? 'none' : 'flex';
-    });
-
     this.fpsMonitor = vtkFPSMonitor.newInstance();
     this.fpsElm = this.fpsMonitor.getFpsMonitorContainer();
     this.fpsElm.classList.add(this.style.fpsMonitor);
     this.lookupTable = vtkColorTransferFunction.newInstance();
+  }
+  update() {
+    this.applyPreset();
+    this.renderWindow.render();
   }
   setBackground(color: []) {
     this.background = color;
@@ -116,11 +108,6 @@ export class Geometry {
       }
     );
   }
-  resetCamera() {
-    this.renderer.resetCamera();
-    this.updateCamera(this.renderer.getActiveCamera());
-    this.renderWindow.render();
-  }
   emptyContainer() {
     this.fpsMonitor.setContainer(null);
     while (this.container.firstChild) {
@@ -131,14 +118,11 @@ export class Geometry {
       this.fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         background: this.background,
         rootContainer: this.container,
-        containerStyle: {  height: '100%', width: '100%%', position: 'flex' },
+        containerStyle: {  height: '100%', width: '100%', position: 'flex' },
       });
       this.renderer = this.fullScreenRenderWindow.getRenderer();
       this.renderWindow = this.fullScreenRenderWindow.getRenderWindow();
       this.renderWindow.getInteractor().setDesiredUpdateRate(15);
-
-      this.container.appendChild(this.rootControllerContainer);
-      this.container.appendChild(this.addDataSetButton);
 
       this.scalarBarActor = vtkScalarBarActor.newInstance();
       this.renderer.addActor(this.scalarBarActor);
@@ -353,13 +337,14 @@ export class Geometry {
       } else if (options.fileURL) {
         const urls = [].concat(options.fileURL);
 
-        if (!this.fullScreenRenderWindow) this.createViewer();
+        this.createViewer();
         const nbURLs = urls.length;
         let nbLoadedData = 0;
 
         /* eslint-disable no-loop-func */
-        while (urls.length) {
-          const url = urls.pop();
+        let ln = urls.length;
+        while (ln--) {
+          const url = urls[ln];
           const name = Array.isArray(this.userParams.name)
             ? this.userParams.name[urls.length]
             : `Data ${urls.length + 1}`;
