@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="bg-purple text-white">
+      <div class="bg-orange text-white">
         <template v-if="inProgress">
           <q-spinner-cube
             class="q-ma-xs"
