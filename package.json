@@ -25,7 +25,8 @@
     "vue": "^3.0.0",
     "vue-prism-editor": "^2.0.0-alpha.2",
     "vue-router": "^4.0.0",
-    "vue-showdown": "^3.3.0"
+    "vue-showdown": "^3.3.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.0.0",

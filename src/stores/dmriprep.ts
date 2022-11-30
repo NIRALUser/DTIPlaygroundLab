@@ -43,12 +43,33 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
         this.app = data;
         this.client = client;
         this.execution = this.getDefaultValues(this.app.protocol_template.ui.execution);
+        this.sortModules();
         this.progressMessage = {message: 'Application data loaded', timeout: 1000, color : 'green'};
       } catch (e) {
         console.log(e);
         if (e.response !== undefined ) this.progressMessage = {message: e.response.data.msg, timeout: 20000, color : 'red', actions: [{icon: 'close'}]};
         else this.progressMessage = {message: 'Connection Error', timeout: 1000, color : 'red', actions: [{icon: 'close'}]};
       }       
+    },
+    sortModules() {
+      const default_pipeline = this.app.protocol_template.options.execution.pipeline.default_value;
+      console.log(default_pipeline);
+      this.app.modules.system = this.app.modules.system.sort((x,y) => {
+          // console.log(default_pipeline.indexOf(x.name),x.name);
+          const xv = default_pipeline.indexOf(x.name) >= 0 ? default_pipeline.indexOf(x.name) : 999;
+          const yv = default_pipeline.indexOf(y.name) >= 0 ? default_pipeline.indexOf(y.name) : 999;
+          if ( xv > yv ) {
+            return 1;
+          } else if (xv < yv) { 
+            return -1;
+          } else {
+            return 0;
+          }
+
+          console.log(res);
+          return res;
+      });
+      console.log(this.app.modules);
     },
     async  attachLogfile() {
       const $i = useInterval();

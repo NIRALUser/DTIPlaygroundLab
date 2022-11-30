@@ -45,18 +45,25 @@
                                     </q-item-section>
                                  </q-item>
                                  <q-separator/>
-                                 <q-item dense 
-                                         clickable 
-                                         :disable="disable"
-                                         class="q-pa-auto col-12 text-bold text-primary" 
-                                         v-for="m in app.modules.system" 
-                                         :key="m.path"
-                                         @dblclick="onDoubleClick(m.name)">
-                                    <q-item-section>
-                                        <q-item-label>{{ m.name }}</q-item-label>
-                                        <q-tooltip>Double Click to Add this module</q-tooltip>
-                                    </q-item-section>
-                                 </q-item>
+                                 <draggable
+                                   :list="app.modules.system"
+                                   itemKey="_id"
+                                   :group="{name: 'modules', pull: 'clone', put:false}"
+                                   v-bind:clone="handleClone"
+                                   >
+                                      <template #item="{element: m, index}">
+                                       <q-item dense 
+                                               clickable 
+                                               :disable="disable"
+                                               class="q-pa-auto col-12 text-bold text-primary" 
+                                               @dblclick="onDoubleClick(m.name)">
+                                          <q-item-section>
+                                              <q-item-label>{{ m.name }}</q-item-label>
+                                              <q-tooltip>Double Click or Drag to Add this module</q-tooltip>
+                                          </q-item-section>
+                                       </q-item>
+                                      </template>
+                                  </draggable>
                              </q-list>
                            </div>
                            <div>
@@ -68,18 +75,24 @@
                                     </q-item-section>
                                  </q-item>
                                  <q-separator/>
-                                 <q-item dense 
-                                         clickable 
-                                         :disable="disable"
-                                         class="q-pa-auto col-12 text-bold text-primary" 
-                                         v-for="m in app.modules.user" 
-                                         :key="m.path"
-                                         @dblclick="onDoubleClick(m.name)">
-                                    <q-item-section>
-                                        <q-item-label>{{ m.name }}</q-item-label>
-                                        <q-tooltip>Double Click to Add this module</q-tooltip>
-                                    </q-item-section>
-                                 </q-item>
+                                  <draggable
+                                   :list="app.modules.user"
+                                   itemKey="_id"
+                                   :group="{name: 'modules', pull: 'clone', put:false}"
+                                   >
+                                      <template #item="{element: m, index}">
+                                       <q-item dense 
+                                               clickable 
+                                               :disable="disable"
+                                               class="q-pa-auto col-12 text-bold text-primary" 
+                                               @dblclick="onDoubleClick(m.name)">
+                                          <q-item-section>
+                                              <q-item-label>{{ m.name }}</q-item-label>
+                                              <q-tooltip>Double Click to Add this module</q-tooltip>
+                                          </q-item-section>
+                                       </q-item>
+                                      </template>
+                                  </draggable>
                              </q-list>
                             </div>
                       </div> <!-- First Column Ends-->
@@ -93,28 +106,37 @@
                                     </q-item-section>
                                  </q-item>
                                  <q-separator/>
-                                 <q-item dense 
-                                         clickable 
-                                         :class="{ 'q-pa-auto col-12 text-bold': true, 'bg-primary text-white' :currentIndex === i }" 
-                                         @click="showProtocol(i)"
-                                         v-for="m, i in pipeline"
-                                         :key="`${i}-${m.id}`">
-                                    <q-item-section>
-                                        <q-item-label>{{ m.name }}</q-item-label>
-          <!--                               <q-item-label caption> Test </q-item-label> -->
-                                    </q-item-section>
-                                    <template v-if="currentIndex === i && !disable">
-                                         <q-item-section @click="moveUp(i)" side>
-                                          <q-icon color="white" name="keyboard_arrow_up" />
-                                         </q-item-section>
-                                         <q-item-section @click="moveDown(i)" side >
-                                          <q-icon clickable color="white" name="keyboard_arrow_down" />
-                                         </q-item-section>
-                                         <q-item-section @click="onDeleteModule(i)" side>
-                                          <q-icon color="red" name="delete_outline" />
-                                         </q-item-section>
+                                 <draggable
+                                    :list="pipeline"
+                                   itemKey="id"
+                                   :group="{name: 'modules'}"
+                                   @change="onPipelineChanged"
+                                  >
+                                    <template #item="{element:m , index: i}">
+                                       <q-item dense 
+                                               clickable 
+                                               :class="{ 'q-pa-auto col-12 text-bold': true, 'bg-primary text-white' :currentIndex === i }" 
+                                               @click="showProtocol(i)"
+                                               :key="`${i}-${m.id}`">
+<!--                                                v-for="m, i in pipeline"
+                                               :key="`${i}-${m.id}`"> -->
+                                          <q-item-section>
+                                              <q-item-label>{{ m.name }}</q-item-label>
+                                          </q-item-section>
+                                          <template v-if="currentIndex === i && !disable">
+                                               <q-item-section @click="moveUp(i)" side>
+                                                <q-icon color="white" name="keyboard_arrow_up" />
+                                               </q-item-section>
+                                               <q-item-section @click="moveDown(i)" side >
+                                                <q-icon clickable color="white" name="keyboard_arrow_down" />
+                                               </q-item-section>
+                                               <q-item-section @click="onDeleteModule(i)" side>
+                                                <q-icon color="red" name="delete_outline" />
+                                               </q-item-section>
+                                           </template>
+                                       </q-item>
                                      </template>
-                                 </q-item>
+                                 </draggable>
                              </q-list>
                             </div>
                       </div> <!-- Second Column Ends-->
@@ -122,7 +144,7 @@
                 </template>
                 <template v-slot:after>
                   <div v-if="pipeline.length > 0">
-                      <q-list padding>
+                      <q-list padding v-if="pipeline[currentIndex].id">
                           <q-item class="q-pa-auto col-12">
                             <q-item-section>
                                 <q-item-label overline>{{ pipeline[currentIndex].name }}</q-item-label>
@@ -153,6 +175,7 @@ import ConfirmDialog from 'src/components/ConfirmDialog.vue';
 import AutoForm from 'src/components/AutoForm.vue';
 import { useQuasar } from 'quasar';
 import { useDMRIPrep } from 'src/stores/dmriprep';
+import draggable from 'vuedraggable';
 
 export default defineComponent({
   props: {
@@ -177,6 +200,7 @@ export default defineComponent({
     AutoForm,
     RemoteFileSelectDialog,
     ConfirmDialog,
+    draggable,
   },
 
   setup (props, ctx) {
@@ -271,6 +295,27 @@ export default defineComponent({
         if(!nv) return;
         openProtocolFile(nv[0])
     });
+    function handleClone(elm) {
+      const cloned = JSON.parse(JSON.stringify(elm));
+      return cloned;
+    }
+    async function onPipelineChanged(ev) {
+      if(ev.added) {
+        const elm= ev.added.element;
+        const idx = ev.added.newIndex;
+        const data = await $r.getTemplate(elm.name);
+        template.value = data;
+        const protocol = $r.getDefaultValues(template.value.protocol);
+        const options = $r.getDefaultValues(template.value.options);
+        const newElm = { id: getUUID(), name: elm.name, value: { options, protocol }, template : data };
+        pipeline.value[idx]=newElm;
+        currentIndex.value = idx;
+        onChanged();
+      }
+      if(ev.moved) {
+        currentIndex.value = ev.moved.newIndex;
+      }
+    }
     async function onDoubleClick(name) {
         if (props.disable) return;
         const data = await $r.getTemplate(name);
@@ -311,7 +356,9 @@ export default defineComponent({
       deleteModule,
       onDeleteModule,
       confirmDialogDelete,
-      onChangedDir
+      onChangedDir,
+      handleClone,
+      onPipelineChanged,
     };
   }
 });
