@@ -7,7 +7,7 @@ import { getUUID } from 'src/utils';
 
 export const useClientStore = defineStore('apiClient', {
   state: () => ({
-    _client : Client.Create(SERVER_URL)
+    _client : Client.Create(process.env.DEV? SERVER_URL: '/')
   }),
   getters: {
     client(state) {

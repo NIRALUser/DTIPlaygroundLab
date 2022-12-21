@@ -6,6 +6,9 @@ import { getUUID } from 'src/utils';
 export const useDMRIPrep= defineStore('DMRIPrep', {
   state: () => ({
     app: null,
+    root: '$HOME',
+    tab: 'settings',
+    splitterModel: 50,
     client: {},
     pipeline: [],
     execution: {},

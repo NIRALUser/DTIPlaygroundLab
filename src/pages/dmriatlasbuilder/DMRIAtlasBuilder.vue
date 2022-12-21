@@ -22,11 +22,14 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-        <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn>
-        <q-btn flat :disable="running" @click="removeStorage">Remove Storage</q-btn>
+<!--         <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn> -->
+<!--         <q-btn flat  @click="loadDir">Load Dir</q-btn> -->
+        <q-btn flat  @click="loadParams">Load Params</q-btn>
+        <q-btn flat  @click="loadGreedy">Load Greedy</q-btn>
+        <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
-              @click="generateRemoteParams">Generate Remote Params</q-btn>
+              @click="generateRemoteParams">Generate Build</q-btn>
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
               @click="execute">Execute</q-btn>
@@ -40,11 +43,10 @@
           inline-label
           class="bg-white text-primary shadow-2"
         >
-              <q-tab name="hbuild" icon="account_tree"><div class="q-pa-sm text-bold gt-sm">HBuild</div><q-tooltip>HBuild Tree</q-tooltip></q-tab>
+              <q-tab name="hbuild" icon="account_tree"><div class="q-pa-sm text-bold gt-sm">Input</div><q-tooltip>HBuild Tree</q-tooltip></q-tab>
               <q-tab name="affineatlas" icon="transform"><div class="q-pa-sm text-bold gt-sm">Affine Atlas</div><q-tooltip>Affine Atlas Parameters</q-tooltip></q-tab>
               <q-tab name="diffeomorphicatlas" icon="polyline"><div class="q-pa-sm text-bold gt-sm">Diffeomorphic Atlas</div><q-tooltip>Diffeomorphic Atlas Parameters</q-tooltip></q-tab> 
               <q-tab name="finalresample" icon="loop" ><div class="q-pa-sm text-bold gt-sm">Final Resampling</div><q-tooltip>Resampling Parameters</q-tooltip></q-tab> 
-              <q-tab name="settings" icon="settings" ><div class="q-pa-sm text-bold gt-sm">Settings</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
         </q-tabs>
       </div>
       <q-separator/>
@@ -56,21 +58,22 @@
                   <div>
                     <q-tab-panels v-model="tab" animated >
                       <q-tab-panel name="hbuild">
-                        <HBuild :disable="running" v-model="hbuild" v-on:changed-param="onParamChangedHbuild" :root="root" v-on:changed-dir="onChangedDir"/>
+                        <AutoForm v-if="parameters" :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" />
+                        <HBuild :disable="running" v-model="hbuild"  :root="root" v-on:changed-dir="onChangedDir"/>
                       </q-tab-panel>
                       <q-tab-panel name="affineatlas">
-                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters"/>
                       </q-tab-panel>
                       <q-tab-panel name="diffeomorphicatlas">
-                          <EditableTable :disable="running" v-model = "greedy" v-on:changed-param="onParamChangedGreedy"/>
-                          <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas.parameters" v-on:changed-param="onParamChanged"/>
+                          <EditableTable :disable="running" v-model = "greedy" />
+                          <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas.parameters" />
                       </q-tab-panel>
                       <q-tab-panel name="finalresample">
-                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" v-on:changed-param="onParamChanged"/>
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" />
                       </q-tab-panel>
-                      <q-tab-panel name="settings">
-                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" v-on:changed-param="onParamChanged"/>
-                      </q-tab-panel>
+<!--                       <q-tab-panel name="settings">
+                          <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" />
+                      </q-tab-panel> -->
                     </q-tab-panels>
                   </div>
                 </template>
@@ -111,23 +114,35 @@ export default defineComponent({
               },
   setup (props, ctx) {
     const $r = useDMRIAtlas();
-    const splitterModel = ref(50);
-    const hbuild = ref<any[]>([]);
-    const parameters = ref<any>(null);
-    const greedy = ref<any>(null);
-    const template = ref<any>();
-    const template_greedy = ref<any>();
-    const tab = ref<string>(null);
     const logBox = ref(null);
     const hasRun = ref(false);
-    const root = ref<string>('/');
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
-
-    const { app, status, inProgress : running, isSuccessful: success, logText: logtext, progressMessage : message, isFailed: failed } = storeToRefs($r);
+    const {
+      splitterModel,
+      hbuild,
+      parameters,
+      greedy,
+      template,
+      template_greedy,
+      tab,
+      root,
+    } = storeToRefs($r);
+    const { 
+            app, 
+            status, 
+            inProgress : running, 
+            isSuccessful: success, 
+            logText: logtext, 
+            progressMessage : message, 
+            isFailed: failed 
+    } = storeToRefs($r);
+    const fileInput = ref(null);
+    const localFile = ref<any>(null);
+    const currentLoadingType = ref<string>(null);
 
     async function loadRemoteTemplates() {
       template.value = app.value; 
@@ -142,26 +157,10 @@ export default defineComponent({
       parameters.value = res;
       greedy.value = template_greedy.value.table
     }
-
-    function onParamChanged(val) {
-      saveCacheItemsParams();
-    }
-    function onParamChangedHbuild(val) {
-      saveCacheItemsTree();
-    }
-    function onParamChangedGreedy(val) {
-      saveCacheItemsGreedy();
-    }
     function dumpParams(ev) {
       console.log('Tree',hbuild.value);
       console.log('Params',parameters.value);
       console.log('Greedy',greedy.value);
-      console.log('sessionStorage-Tree',JSON.parse(sessionStorage.getItem('dmriatlasbuilder-tree')));
-      console.log('sessionStorage-Params',JSON.parse(sessionStorage.getItem('dmriatlasbuilder-parameters')));
-      console.log('sessionStorage-Greedy',JSON.parse(sessionStorage.getItem('dmriatlasbuilder-greedy')));
-    }
-    function removeStorage(ev) {
-      sessionStorage.clear()
     }
     async function generateRemoteParams(ev) {
       if (!hbuild.value || !parameters.value || hbuild.value.length < 1 || parameters.value.execution.m_OutputPath.length < 1) {
@@ -191,48 +190,39 @@ export default defineComponent({
       };
       $r.executeDMRIAtlasBuilder(payload);
     }
+    async function openParamsFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', (ev) => {
+        const params = JSON.parse(ev.target.result);
+        console.log(params);
+        localFile.value = null;
+      });
+      await reader.readAsText(file);
+    }
+    async function openGreedyFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', (ev) => {
+        const greedy = JSON.parse(ev.target.result);
+        console.log(greedy);
+        localFile.value = null;
+      });
+      await reader.readAsText(file);
+    }
+    function loadDir(ev) {
 
-    function saveCacheItemsTree() {
-      sessionStorage.setItem('dmriatlasbuilder-tree', JSON.stringify(hbuild.value));
     }
-    function saveCacheItemsGreedy() {
-      sessionStorage.setItem('dmriatlasbuilder-greedy', JSON.stringify(greedy.value));
+    function loadParams(ev) {
+      currentLoadingType.value = 'params';
+      fileInput.value.$el.click();
     }
-    function saveCacheItemsParams() {
-      sessionStorage.setItem('dmriatlasbuilder-parameters', JSON.stringify(parameters.value));
-    }
-    function saveCachedWorkingDir() {
-      sessionStorage.setItem('dmriatlasbuilder-workingdir', root.value);
-    }
-    function loadCachedTabIndex() {
-      if (!('dmriatlasbuilder-tab' in sessionStorage)) {
-        tab.value = 'hbuild';
-        return;
-      }
-      tab.value = sessionStorage.getItem('dmriatlasbuilder-tab');
-    }
-    function loadCachedItemsTree() {
-      if (!('dmriatlasbuilder-tree' in sessionStorage)) return;
-      const cachedParams = JSON.parse(sessionStorage.getItem('dmriatlasbuilder-tree'));
-      hbuild.value = cachedParams;
-    }
-    function loadCachedItemsGreedy() {
-      if (!('dmriatlasbuilder-greedy' in sessionStorage)) return;
-      const cachedParams = JSON.parse(sessionStorage.getItem('dmriatlasbuilder-greedy'));
-      greedy.value = cachedParams;
-    }
-    function loadCachedItemsParams() {
-      if (!('dmriatlasbuilder-parameters' in sessionStorage)) return;
-      const cachedParams = JSON.parse(sessionStorage.getItem('dmriatlasbuilder-parameters'));
-      parameters.value = cachedParams;
-    }
-    function loadCachedWorkingDir() {
-      if (!('dmriatlasbuilder-workingdir' in sessionStorage)) return;
-      root.value = sessionStorage.getItem('dmriatlasbuilder-workingdir');
+    function loadGreedy(ev) {
+      currentLoadingType.value = 'greedy';
+      fileInput.value.$el.click();
     }
     function onChangedDir(ev) {
       root.value = ev;
-      saveCachedWorkingDir();
     }
     async function abort(ev) {
       await $r.cancel()
@@ -240,13 +230,23 @@ export default defineComponent({
     watch(message, (nv,ov) => {
       $n.notify(message.value);
     })
+    watch(localFile, async (nv, ov) => {
+      if (!nv) return;
+      console.log(currentLoadingType.value);
+      console.log(nv);
+      if (nv.length < 1) return;
+      const file = nv[0];
+      if (currentLoadingType.value === 'params') {
+        await openParamsFile(file);
+      } else if (currentLoadingType.value === 'greedy') {
+        await openGreedyFile(file);
+      } else {
+
+      }
+    });
     watch(tab, (nv, ov) => {
-      sessionStorage.setItem('dmriatlasbuilder-tab', tab.value);
     });
     onBeforeMount(async () => {
-      loadCachedItemsParams();
-      loadCachedItemsTree();
-      loadCachedItemsGreedy();
     });
     onMounted(async () => {
       await $r.initialize();
@@ -259,10 +259,8 @@ export default defineComponent({
       if (!greedy.value) {
         loadDefaultParameters();
       }
-      loadCachedTabIndex();
       $g.setApplicationName('Atlas');
       root.value = $g.applicationInfo.home_dir;
-      loadCachedWorkingDir();
     });
     onUnmounted(() => {
     });
@@ -273,13 +271,6 @@ export default defineComponent({
       parameters,
       greedy,
       tab,
-      onParamChanged,
-      onParamChangedHbuild,
-      onParamChangedGreedy,
-      dumpParams,
-      removeStorage,
-      generateRemoteParams,
-      execute,
       logtext,
       logBox,
       running,
@@ -290,6 +281,21 @@ export default defineComponent({
       root,
       onChangedDir,
       abort,
+
+      // IO
+      loadDir,
+      loadParams,
+      loadGreedy,
+
+      //Execution
+      generateRemoteParams,
+      execute,
+
+      // Elm
+      localFile,
+      fileInput,
+      // Dev
+      dumpParams,
     }
   }
 });

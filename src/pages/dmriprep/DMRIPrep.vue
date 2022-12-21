@@ -22,8 +22,8 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-        <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
-        <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn>
+<!--         <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
+        <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn> -->
         <q-btn flat :color="validatePrepParams(io) ? 'primary': 'red'" 
               :disable="inProgress || !validatePrepParams(io)" 
               @click="prepare">Generate Protocols</q-btn>
@@ -39,7 +39,7 @@
           inline-label
           class="bg-white text-primary shadow-2"
         >
-              <q-tab name="settings" icon="image" ><div class="q-pa-sm text-bold gt-xs">Data</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
+              <q-tab name="settings" icon="image" ><div class="q-pa-sm text-bold gt-xs">Input</div><q-tooltip>Execution variables & command</q-tooltip></q-tab> 
               <q-tab name="pipeline" icon="view_carousel"><div class="q-pa-sm text-bold gt-xs">QC Protocol</div><q-tooltip>QC Module Pipelining and protocol setup</q-tooltip></q-tab>
 
         </q-tabs>
@@ -95,17 +95,17 @@ export default defineComponent({
               },
   setup (props, ctx) {
     const $r = useDMRIPrep();
-    const splitterModel = ref(50);
-    const tab = ref<string>('setting');
     const logBox = ref(null);
     const hasRun = ref(false);
-    const root = ref<string>('/');
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
-    const { app, 
+    const { app,
+            root, 
+            tab,
+            splitterModel,
             status,
             pipeline,
             execution : io,
@@ -157,7 +157,7 @@ export default defineComponent({
     }
     function loadCachedTabIndex() {
       if (!('dmriprep-tab' in sessionStorage)) {
-        tab.value = 'hbuild';
+        tab.value = 'settings';
         return;
       }
       tab.value = sessionStorage.getItem('dmriprep-tab');

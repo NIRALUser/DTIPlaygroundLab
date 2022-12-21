@@ -6,7 +6,7 @@
     </div>
     <div>
           <div class="truncate row"> 
-            <div :class="{ 'col-md-3 col-sm-6 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }" v-for="file in files" :key="file.path">
+            <div :class="{ 'col-sm-6 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }" v-for="file in files" :key="file.path">
              <template v-if="file.is_dir">
                  <div @click="addSelection($event, file)"
                       @click.ctrl = "addSelection($event,file)" 

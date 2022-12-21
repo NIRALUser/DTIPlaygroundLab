@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="bg-purple text-white">
+<!--       <div class="bg-purple text-white">
         <template v-if="inProgress">
           <q-spinner-cube
             class="q-ma-xs"
@@ -24,7 +24,7 @@
         </template>
         <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
         <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn>
-      </div>
+      </div> -->
       <div>
         <q-tabs
           v-model="tab"
@@ -33,7 +33,7 @@
         >
               <q-tab name="viewer-vtp" icon="stream" ><div class="q-pa-sm text-bold gt-xs">Tract Viewer (VTP)</div><q-tooltip>View Tractogram in vtp format</q-tooltip></q-tab> 
               <q-tab name="viewer-dwi" icon="image" ><div class="q-pa-sm text-bold gt-xs">DWI Viewer (nrrd/nifti)</div><q-tooltip>View DWI in Nrrd/Nifti</q-tooltip></q-tab> 
-              <q-tab name="detail" icon="info_outlined"><div class="q-pa-sm text-bold gt-xs">Details</div><q-tooltip>Image Details</q-tooltip></q-tab>
+<!--               <q-tab name="detail" icon="info_outlined"><div class="q-pa-sm text-bold gt-xs">Details</div><q-tooltip>Image Details</q-tooltip></q-tab> -->
 
         </q-tabs>
       </div>
@@ -49,8 +49,16 @@
                             </div>
                         </div>
                   </q-tab-panel>
+
+                  <q-tab-panel name="viewer-dwi">
+                      <div> 
+                        <dwi-viewer />
+                      </div>
+                  </q-tab-panel>
                   <q-tab-panel name="detail">
-                      <div> Detail</div>
+                      <div> 
+                        Details
+                      </div>
                   </q-tab-panel>
             </q-tab-panels>
       </div>
@@ -66,21 +74,23 @@ import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables } from 'src/stores/dtiplayground';
 import { useDMRIViewer_TractViewer } from 'src/stores/dmriviewer';
 import TractViewer from './viewers/TractViewer.vue';
+import DwiViewer from './viewers/DwiViewer.vue';
 
 export default defineComponent({
   components: { 
-                TractViewer
+                TractViewer,
+                DwiViewer,
               },
   setup (props, ctx) {
     const $r = useDMRIViewer_TractViewer();
-    const tab = ref<string>('viewer-vtp');
-    const root = ref<string>('/');
+    const tab = ref<string>('viewer-dwi');
     const $c = useClientStore();
     const $q = useQuasar();
     const $i = useInterval();
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
     const { app, 
+            root,
             status,
             geometry,
             inProgress , 

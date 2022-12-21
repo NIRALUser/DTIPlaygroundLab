@@ -22,8 +22,8 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-        <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
-        <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn>
+<!--         <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
+        <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn> -->
       </div>
       <div>
         <q-tabs
@@ -32,7 +32,7 @@
           class="bg-white text-primary shadow-2"
         >
               <q-tab name="editor" icon="code" ><div class="q-pa-sm text-bold gt-xs">Editor</div><q-tooltip>Editting module or general code</q-tooltip></q-tab> 
-              <q-tab name="terminal" icon="terminal" ><div class="q-pa-sm text-bold gt-xs">Terminal</div><q-tooltip>Terminal to test the code</q-tooltip></q-tab> 
+             <!--  <q-tab name="terminal" icon="terminal" ><div class="q-pa-sm text-bold gt-xs">Terminal</div><q-tooltip>Terminal to test the code</q-tooltip></q-tab>  -->
 
         </q-tabs>
       </div>
@@ -111,7 +111,7 @@ export default defineComponent({
               },
   setup (props, ctx) {
     const $r = useModuleEditor();
-    const tab = ref<string>('editor');
+    // const tab = ref<string>('editor');
     const url = ref<string | null>(null);
     const commands = ref<any[]>([]);
     const $c = useClientStore();
@@ -120,6 +120,7 @@ export default defineComponent({
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
     const { app, 
+            tab,
             status,
             splitter1,
             splitter2,

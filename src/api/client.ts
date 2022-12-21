@@ -69,6 +69,24 @@ export default class Client {
     });
   }  
 
+  // Image loading
+  async loadImageAsCache(filename: string): Promise<any[]> {
+    const payload = { params: { filename, key: 'dwi' }};
+    return this.axios.get('/api/v1/files/load', payload).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });
+  }
+  // DWI browsing
+  async getSliceFromDWI(grad_idx, axis_idx, slice_idx): Promise<any[]> {
+    return this.axios.get(`/api/v1/dwi/${grad_idx}/${axis_idx}/${slice_idx}`).then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });
+  }
+
   // API file browser
   async listFiles(rootdir: string): Promise<any[]> {
     const payload = { params: { root_dir: rootdir }}

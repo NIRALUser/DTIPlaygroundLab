@@ -49,7 +49,6 @@ import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables } from 'src/stores/dtiplayground';
 
 import vtkURLExtract from '@kitware/vtk.js/Common/Core/URLExtract';
-import { load } from './tract';
 import { Geometry } from 'src/components/geometry';
 import { useDMRIViewer_TractViewer } from 'src/stores/dmriviewer';
 

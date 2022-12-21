@@ -6,7 +6,7 @@
                     <template v-if="paramType(param.type) === 'number'">
                       <div class="row">
                           <div class="col-12">
-                            <q-input :disable="disable || param.disabled"  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)"  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
@@ -16,7 +16,7 @@
                     <template :disable="disable" v-else-if="paramType(param.type) === 'string'">
                       <div class="row">
                           <div class="col-12">
-                            <q-input :disable="disable || param.disabled" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
@@ -26,7 +26,7 @@
                     <template :disable="disable" v-else-if="paramType(param.type) === 'array'">
                       <div class="row">
                           <div class="col-12">
-                            <q-input :disable="disable || param.disabled" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}
@@ -36,7 +36,7 @@
                     <template v-else-if="paramType(param.type) === 'select'">
                       <div class="row">
                         <div class="col-12">
-                           <q-select :disable="disable || param.disabled" map-options emit-value option-label="caption" dense :label="param.caption" :options="param.candidates"  v-model="parameters.val[param.name]">
+                           <q-select :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" map-options emit-value option-label="caption" dense :label="param.caption" :options="param.candidates"  v-model="parameters.val[param.name]">
                                     <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
                                       <q-item v-bind="itemProps">
                                         <q-item-section>
@@ -54,7 +54,7 @@
                     </template>
                     <template  v-else-if="paramType(param.type) === 'boolean'">
                         <div class="col-12">
-                           <q-checkbox :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
+                           <q-checkbox :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -63,14 +63,14 @@
                     <template v-else-if="paramType(param.type) === 'component'">
                      <div class="row">
                         <div class="col-12">
-                           <AutoForm :disable="disable || param.disabled" v-model="parameters.val[param.name]" :template="param.components"/>
+                           <AutoForm :disable="disable || param.disabled " v-model="parameters.val[param.name]" :template="param.components"/>
                         </div>
                       </div>                   
                     </template>
                     <template v-else-if="paramType(param.type) === 'filepath-remote'">
                        <div class="row">
                         <div class="col-12">
-                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled" v-model="parameters.val[param.name]" :label="param.caption"/>
+                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -80,7 +80,7 @@
                     <template v-else-if="paramType(param.type) === 'dirpath-remote'">
                        <div class="row">
                         <div class="col-12">
-                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled" v-model="parameters.val[param.name]" directory :label="param.caption"/>
+                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" directory :label="param.caption"/>
                         </div>
                         <q-tooltip>
                             {{ param.description }}
@@ -90,7 +90,7 @@
                     <template v-else>
                       <div class="row">
                           <div class="col-12">
-                            <q-input :disable="disable || param.disabled" dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
+                            <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
                           </div>
                           <q-tooltip>
                             {{ param.description }}

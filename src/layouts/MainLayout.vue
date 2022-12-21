@@ -13,10 +13,9 @@
 
         <q-toolbar-title>
           <q-item dense 
-                  class="q-pa-sm" 
+                  class="q-pa-sm noselect" 
                   tag="a" 
-                  target="_blank" 
-                  href="https://github.com/niraluser/dtiplayground">
+                  href="/">
                 {{ APP_TITLE }} <div class="q-pa-auto text-caption" >{{ currentApplication }} </div>
 
           </q-item>
@@ -39,6 +38,7 @@
         </q-item-label>
 
         <BaseMenu
+          class="noselect"
           v-for="link in essentialLinks"
           :key="link.title"
           v-bind="link"

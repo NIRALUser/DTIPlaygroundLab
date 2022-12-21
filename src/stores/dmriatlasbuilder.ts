@@ -16,14 +16,32 @@ export const useDMRIAtlas = defineStore('remoteDMRIAtlas', {
     outputDir: '',
     progressMessage: {},
     executionId: getUUID(),
+    // Data 
+    splitterModel: 50,
+    hbuild: [],
+    parameters: null,
+    greedy: null,
+    template: null,
+    template_greedy: null,
+    tab: 'hbuild',
+    root: '$HOME',
   }),
   actions: {
-    reset() {
+    async reset() {
       this.inProgress = false;
       this.isFailed = false;
       this.isSuccessful = false;
       this.resetLog();
       this.executionId =  getUUID();
+
+      // data;
+      this.tab="hbuild";
+      this.greedy= null;
+      this.hbuild=[];
+      this.parameters=null;
+      // this.template=null;
+      // this.template_greedy=null;
+      // await this.initialize();
     },
     resetLog() {
       this.lastLogLine = 0;

@@ -7,6 +7,7 @@ import vtkURLExtract from '@kitware/vtk.js/Common/Core/URLExtract';
 export const useDMRIViewer_TractViewer= defineStore('DMRIViewer', {
   state: () => ({
     app: null,
+    root: '/',
     client: {},
     container: null,
     url: null,
@@ -57,3 +58,51 @@ export const useDMRIViewer_TractViewer= defineStore('DMRIViewer', {
   }
 });
 
+export const useDMRIViewer_DWIViewer = defineStore('DWIViewerStore', {
+  state: () => ({
+    app: null,
+    root: '/',
+    inProgress : false,
+    isSuccessful : false,
+    selectedFile: null,
+    sliceIndex: 0,
+    imageMeta: null,
+    navigation: {
+      currentGradient: 0,
+      currentAxis: 0,
+      currentIndex: 0,
+    },
+    threshold: {
+      min: 1000,
+      max: 8000,
+    }
+  }),
+  actions: {
+    async initialize() {
+      if (this.app) return;   
+    },
+    async getSliceFromDWI(grad_idx,axis_idx,slice_idx) {
+      try {
+        const $c = useClientStore();
+        const client = await $c.client;
+        const res = await client.getSliceFromDWI(grad_idx,axis_idx,slice_idx);
+        return res;
+      } catch (e) {
+        console.log(e);
+      } 
+    },
+    async loadImageAsCache(filename) {
+      try {
+        const $c = useClientStore();
+        const client = await $c.client;
+        const res = await client.loadImageAsCache(filename);
+        return res;
+      } catch (e) {
+        console.log(e);
+      } 
+    },
+    reset() {
+
+    }
+  }
+});

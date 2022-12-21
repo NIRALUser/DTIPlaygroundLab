@@ -6,8 +6,8 @@
           inline-label
           class="bg-black text-white shadow-2"
         >
-              <q-tab name="about" icon="info_outline"><div class="q-pa-sm text-bold gt-sn">About</div></q-tab>
-              <q-tab name="docs" icon="content_copy"><div class="q-pa-sm text-bold gt-sm">Documentations</div></q-tab>
+<!--               <q-tab name="about" icon="info_outline"><div class="q-pa-sm text-bold gt-sn">About</div></q-tab> -->
+              <q-tab name="docs" icon="content_copy"><div class="q-pa-sm text-bold gt-sm">Get Started</div></q-tab>
         </q-tabs>
       </div>
       <q-separator/>                     

@@ -5,12 +5,13 @@ import lodash from 'lodash';
 export const useModuleEditor= defineStore('ModuleEditor', {
   state: () => ({
     app: null,
+    tab: 'editor',
     client: {},
     currentCode: null,
     splitter1: 20,
     splitter2: 99,
     currentLanguage: 'python',
-    currentDir: '/',
+    currentDir: '$HOME',
     isMarkdown: false,
     inProgress : false,
     isSuccessful : false,
