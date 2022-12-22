@@ -62,20 +62,28 @@ export const useDMRIViewer_DWIViewer = defineStore('DWIViewerStore', {
   state: () => ({
     app: null,
     root: '/',
+    slices: {
+      x: 0,
+      y: 0,
+      z: 0,
+      g: 0,
+    },
+    image_size: {
+      width: 300,
+      height: 300,
+    },
+    threshold: {min:0, max:10000},
     inProgress : false,
     isSuccessful : false,
     selectedFile: null,
     sliceIndex: 0,
     imageMeta: null,
+    loading: false,
     navigation: {
       currentGradient: 0,
       currentAxis: 0,
       currentIndex: 0,
     },
-    threshold: {
-      min: 1000,
-      max: 8000,
-    }
   }),
   actions: {
     async initialize() {
@@ -93,13 +101,16 @@ export const useDMRIViewer_DWIViewer = defineStore('DWIViewerStore', {
     },
     async loadImageAsCache(filename) {
       try {
+        this.loading = true;
         const $c = useClientStore();
         const client = await $c.client;
         const res = await client.loadImageAsCache(filename);
         return res;
       } catch (e) {
         console.log(e);
-      } 
+      } finally {
+        this.loading=false;
+      }
     },
     reset() {
 

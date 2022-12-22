@@ -52,12 +52,13 @@
                 <template v-slot:before>
                   <div>
                     <q-tab-panels v-model="tab" animated >
-                      <q-tab-panel name="pipeline">
-                        <Protocols :root="root" v-on:changed-dir="onChangedDir" :disable="inProgress" v-on:changed-param="onChanged"/>
-                      </q-tab-panel>
                       <q-tab-panel name="settings">
                           <AutoForm :root="root" v-on:changed-dir="onChangedDir" v-if="app" :disable="inProgress" v-model="io" :template="app.protocol_template.ui.execution" v-on:changed-param="onChanged"/>
                       </q-tab-panel>
+                      <q-tab-panel name="pipeline">
+                        <Protocols :root="root" v-on:changed-dir="onChangedDir" :disable="inProgress" v-on:changed-param="onChanged"/>
+                      </q-tab-panel>
+
                     </q-tab-panels>
                   </div>
                 </template>

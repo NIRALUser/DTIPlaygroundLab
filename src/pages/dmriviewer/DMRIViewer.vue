@@ -108,7 +108,7 @@ export default defineComponent({
     function clearImage(ev) {
     }
     watch(app, (nv, ov) => {
-      console.log(app.value);
+      // console.log(app.value);
     });
     watch(tab, (nv, ov) => {
       sessionStorage.setItem('dmriviewer-tab', tab.value);

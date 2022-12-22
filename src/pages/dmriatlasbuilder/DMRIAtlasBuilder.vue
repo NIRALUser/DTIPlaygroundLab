@@ -22,10 +22,11 @@
               size="sm" :color="'transparent'"/>
           </template>
         </template>
-<!--         <q-btn flat :disable="running" @click="dumpParams">Dump Params</q-btn> -->
+        <q-btn flat v-if="isDev" :disable="running" @click="dumpParams">Dump Params</q-btn>
 <!--         <q-btn flat  @click="loadDir">Load Dir</q-btn> -->
-        <q-btn flat  @click="loadParams">Load Params</q-btn>
-        <q-btn flat  @click="loadGreedy">Load Greedy</q-btn>
+        <q-btn flat  :disable="running" @click="newBuild">New</q-btn>
+        <q-btn flat  :disable="running" @click="loadParams">Load Params</q-btn>
+        <q-btn flat  :disable="running" @click="loadGreedy">Load Greedy</q-btn>
         <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
@@ -121,6 +122,7 @@ export default defineComponent({
     const $i = useInterval();
     const $n = useGlobalNotification();
     const $g = useGlobalVariables();
+    const isDev = process.env.DEV;
     const {
       splitterModel,
       hbuild,
@@ -156,6 +158,19 @@ export default defineComponent({
       });
       parameters.value = res;
       greedy.value = template_greedy.value.table
+    }
+    function loadParameters(params) {
+      let res = {};
+      lodash.forIn(template.value.parameter_groups, (v, k) => {
+        const pairs = v.parameters.map((x) => ([x.name, x.value]));
+        res[k] = lodash.fromPairs(pairs);
+        lodash.forIn(params, (val, key) => {
+          if (key in res[k]) {
+            res[k][key]= val;
+          }
+        });
+      });
+      parameters.value = res; 
     }
     function dumpParams(ev) {
       console.log('Tree',hbuild.value);
@@ -194,8 +209,8 @@ export default defineComponent({
       if (!file) return;
       const reader = new FileReader();
       reader.addEventListener('load', (ev) => {
-        const params = JSON.parse(ev.target.result);
-        console.log(params);
+        const data = JSON.parse(ev.target.result);
+        loadParameters(data);
         localFile.value = null;
       });
       await reader.readAsText(file);
@@ -204,11 +219,18 @@ export default defineComponent({
       if (!file) return;
       const reader = new FileReader();
       reader.addEventListener('load', (ev) => {
-        const greedy = JSON.parse(ev.target.result);
-        console.log(greedy);
+        const data = JSON.parse(ev.target.result);
+        greedy.value = data;
         localFile.value = null;
       });
       await reader.readAsText(file);
+    }
+    async function newBuild(ev) {
+      app.value = null;
+      await $r.initialize();
+      await loadRemoteTemplates();
+      loadDefaultParameters();
+      hbuild.value = [];
     }
     function loadDir(ev) {
 
@@ -283,6 +305,7 @@ export default defineComponent({
       abort,
 
       // IO
+      newBuild,
       loadDir,
       loadParams,
       loadGreedy,
@@ -296,6 +319,7 @@ export default defineComponent({
       fileInput,
       // Dev
       dumpParams,
+      isDev,
     }
   }
 });

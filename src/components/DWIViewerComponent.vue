@@ -1,21 +1,7 @@
 <template>
-  <div class="q-pa-auto row">
-    <div class="col-12">
       <div v-if="imageMeta">
           <img :width="width" :height="height" :src="imageUrl"/>
-          <q-item>
-            <q-item-section side>
-              Axis {{axisIndex}}
-            </q-item-section>
-            <q-item-section>
-              <q-slider v-model="sliceIndex" :min="0" :max="imageMeta.meta.info.sizes[axisIndex]-1" label />
-            </q-item-section>
-          </q-item>
       </div>
-
-    </div>
-
-  </div>
 </template>
 
 <script lang='ts'>
@@ -27,7 +13,8 @@ import { useDMRIViewer_TractViewer, useDMRIViewer_DWIViewer } from 'src/stores/d
 export default defineComponent({
   props: {
     modelValue: {
-      type: Object,
+      type: Number,
+      default: 0,
     },
     imageMeta: {
       type: Object,
@@ -35,6 +22,10 @@ export default defineComponent({
     baseUrl: {
       type: String,
       default: 'http://localhost:6543/api/v1/dwi'
+    },
+    sliceIndex: {
+      type: Number,
+      default: 0,
     },
     gradientIndex: {
       type: Number,
@@ -61,38 +52,40 @@ export default defineComponent({
   setup (props, ctx) {
     const $r = useDMRIViewer_DWIViewer();
     const imageUrl = ref<string|null>(null);
-    const sliceIndex = ref<number>(null);
     const image_computed = computed(() => props.imageMeta);
+    const base_url_computed = computed(() => props.baseUrl);
     const gradient_computed = computed(() => props.gradientIndex);
+    const slice_computed = computed(() => props.sliceIndex);
     const threshold_computed = computed(() => props.threshold);
     watch(image_computed, (nv_ov) => {
-      sliceIndex.value = 0;
       updateImage();
     });
     function updateImage() {
-      imageUrl.value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${props.gradientIndex}/${props.axisIndex}/${sliceIndex.value}?min=${threshold_computed.value.min}&max=${threshold_computed.value.max}`;
+      imageUrl.value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${props.gradientIndex}/${props.axisIndex}/${slice_computed.value}?min=${threshold_computed.value.min}&max=${threshold_computed.value.max}`;
     }
     watch(threshold_computed,(nv,ov) => {
+      updateImage();
+    });
+    watch(slice_computed, (nv, ov) => {
       updateImage();
     });
     watch(gradient_computed, (nv, ov) => {
       updateImage();
     });
-    watch(sliceIndex, (nv,ov) => {
+    watch(base_url_computed, (nv, ov) => {
       updateImage();
     });
     onBeforeMount(async () => {
     });
     onMounted(async () => {
       if(props.imageMeta) {
-        sliceIndex.value = 0;
+        // sliceIndex.value = 0;
         updateImage();        
       }
     });
     onUnmounted(() => {
     });
     return {
-      sliceIndex,
       imageUrl,
     };
   }

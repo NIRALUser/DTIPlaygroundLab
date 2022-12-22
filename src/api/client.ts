@@ -43,7 +43,6 @@ export default class Client {
   async initAsync() {
       // this.workers = await this.getWorkerSummary();
   }
-
   // API Check
   async checkVersion(): Promise<any> {
     return this.axios.get('/api/v1/version').then((r) => {

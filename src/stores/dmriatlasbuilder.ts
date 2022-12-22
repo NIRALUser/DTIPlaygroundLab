@@ -35,10 +35,10 @@ export const useDMRIAtlas = defineStore('remoteDMRIAtlas', {
       this.executionId =  getUUID();
 
       // data;
-      this.tab="hbuild";
-      this.greedy= null;
-      this.hbuild=[];
-      this.parameters=null;
+      // this.tab="hbuild";
+      // this.greedy= null;
+      // this.hbuild=[];
+      // this.parameters=null;
       // this.template=null;
       // this.template_greedy=null;
       // await this.initialize();

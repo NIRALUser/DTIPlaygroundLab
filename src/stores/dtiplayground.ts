@@ -15,6 +15,9 @@ export const useClientStore = defineStore('apiClient', {
     },
     getClient(state) {
       return state._client;
+    },
+    getServerURL(state) {
+      return state._client.serverURL;
     }
   }
 });

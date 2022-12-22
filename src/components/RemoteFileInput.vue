@@ -54,6 +54,13 @@ export default defineComponent({
     const singleFile = reactive<any>({val: props.modelValue});
     const rootDir = ref<string>(props.root);
     const root_computed = computed(() => props.root);
+    const model_computed = computed(() => props.modelValue);
+
+    watch(model_computed,(nv, ov) => {
+      selectedFiles.val = [{
+        path: nv
+      }];
+    });
     watch(selectedFiles, (nv, ov) => {
       if (selectedFiles.val.length < 1) return;
       ctx.emit('update:modelValue', selectedFiles.val[0].path);

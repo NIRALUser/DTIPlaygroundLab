@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-12">
                       <q-tree
-                        :nodes="nodes"
+                        :nodes="nodes.val"
                         node-key="id"
                         v-model:selected="selectedNode"
                         ref="dataQTree">
@@ -72,7 +72,7 @@
 
 <script lang="ts">
 
-import { defineComponent, onMounted, watch, watchEffect, ref, reactive} from 'vue';
+import { defineComponent, onMounted, watch, watchEffect, ref, reactive, computed} from 'vue';
 import lodash from 'lodash';
 import { download, getUUID } from 'src/utils';
 import RemoteFileSelectDialog from 'src/components/RemoteFileSelectDialog.vue';
@@ -116,14 +116,14 @@ export default defineComponent({
     const localFile = ref<any>(null);
     const newname = ref<string | null>(null);
     const confirmed = ref<boolean>(false);
-    const nodes = reactive<any[]>([{
+    const nodes = reactive<any[]>({val:[{
                                       id: 'root',
                                       parent_id: null,
                                       label: 'FinalAtlas',
                                       files: [],
                                       is_root: true,
                                       children: []
-                                  }]);
+                                  }]});
     const currentNode = ref<any>(null);
     const fileDialog = ref(null);
     const promptDialog = ref(null);
@@ -131,6 +131,7 @@ export default defineComponent({
     const dataQTree = ref(null);
     const fileInput = ref(null);
     const nodeFiles = ref<any[]>([]);
+    const model_computed = computed(()=> props.modelValue);
     const $q = useQuasar();
 
     function onDev(ev) {
@@ -140,9 +141,9 @@ export default defineComponent({
       const reader = new FileReader();
       reader.addEventListener('load', (ev) => {
         const hbuild = JSON.parse(ev.target.result);
-        nodes[0] = qtreeFromHbuild(hbuild);
+        nodes.val[0] = qtreeFromHbuild(hbuild);
         localFile.value = null;
-        currentNode.value = nodes[0];
+        currentNode.value = nodes.val[0];
         dataQTree.value.expandAll();
       });
       await reader.readAsText(file);
@@ -162,7 +163,7 @@ export default defineComponent({
           children: [],
           expanded: true,
       };
-      if (isUniqueNode(nodes[0], newNode)) {
+      if (isUniqueNode(nodes.val[0], newNode)) {
         node.children.push(newNode)    
         node.expanded = true;    
       } 
@@ -175,6 +176,14 @@ export default defineComponent({
       confirmed.value = false;
       confirmDialogDelete.value.openModal();
     }
+    watch(model_computed, (nv, ov) => {
+      nodes.val = nv;
+      if (nv.length > 0) {
+        nodes.val[0] = nv[0];
+      } else {
+        newTree();
+      }
+    });
     watch(confirmed, (nv, ov) => {
       if(nv) {
         deleteNode(currentNode.value);
@@ -188,7 +197,7 @@ export default defineComponent({
       parent_node.children = parent_node.children.filter((x) => x !== node)      
     }
     function newTree(ev) {
-      nodes[0] =    {
+      nodes.val[0] =    {
                       id: 'root',
                       parent_id: null,
                       label: 'FinalAtlas',
@@ -196,13 +205,13 @@ export default defineComponent({
                       is_root: true,
                       children: []
                     };
-      currentNode.value = nodes[0];
+      currentNode.value = nodes.val[0];
     }
     function loadTree(ev) {
       fileInput.value.$el.click();
     }
     function saveTree(ev) {
-      const tree = hbuildFromQtree(nodes[0]);
+      const tree = hbuildFromQtree(nodes.val[0]);
       const hbuild = JSON.stringify(tree, null, 2);
       download("hbuild.json",hbuild);
     }
@@ -215,9 +224,9 @@ export default defineComponent({
       ctx.emit('changed-dir', ev);
     }
     watch(nodes, (nv, ov) => {
-      const text = JSON.stringify(nodes, null, 2);
-      ctx.emit('update:modelValue', nodes);
-      ctx.emit('changed-param', nodes);
+      const text = JSON.stringify(nodes.val, null, 2);
+      ctx.emit('update:modelValue', nodes.val);
+      ctx.emit('changed-param', nodes.val);
     });
     watch(localFile, (nv, ov) => {
       if (!localFile.value) return;
@@ -225,7 +234,7 @@ export default defineComponent({
     });
     watch(newname, (nv, ov) => {
       if (nv !== ov) {
-        if (isUniqueLabel(nodes[0],nv)) {
+        if (isUniqueLabel(nodes.val[0],nv)) {
           currentNode.value.label = nv;
           $q.notify({
             message : 'Name changed',
@@ -250,12 +259,12 @@ export default defineComponent({
     });
     onMounted(async () => {
       if (props.modelValue.length > 0) {
-        nodes[0] = props.modelValue[0];
+        nodes.val[0] = props.modelValue[0];
       } else {
         newTree();
       }
       dataQTree.value.expandAll();
-      currentNode.value = nodes[0];
+      currentNode.value = nodes.val[0];
     });
     return {
       nodes,

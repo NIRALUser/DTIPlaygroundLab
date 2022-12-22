@@ -6,31 +6,63 @@
     </div>
     <div>
           <div class="truncate row"> 
-            <div :class="{ 'col-sm-6 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }" v-for="file in files" :key="file.path">
-             <template v-if="file.is_dir">
-                 <div @click="addSelection($event, file)"
-                      @click.ctrl = "addSelection($event,file)" 
-                      @click.shift = "addSelectionUntil($event,file)"
-                      @click.left.exact = "onFileSelected($event,file)"  
-                      @dblclick="changeRoot(file.path)"
-                      :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
-                     <q-icon name="folder" color="orange"/>
-                     <a  class='overflow-hidden'>{{ file.name }}</a>
-                 </div>
-             </template>
-             <template v-else>
-                <div @click.ctrl = "addSelection($event,file)" 
-                     @click.shift = "addSelectionUntil($event,file)"
-                     @click.left.exact = "onFileSelected($event,file)" 
-                     @dblclick="$emit('open-file',file.path)"
-                     :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
-                  <q-icon name="description" color="green"/>
-                  <a >{{ file.name }}</a>
-                </div>
-             </template>
-            </div>
-          
+            <draggable
+               :list="files"
+               :group="{ name: 'files', pull: 'clone' , put:false}"
+               item-key="path"
+            >
+              <template #item="{element: file, index}">
+                  <div :class="{ 'col-md-6 col-sm-6 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }">
+                   <template v-if="file.is_dir">
+                       <div @click="addSelection($event, file)"
+                            @click.ctrl = "addSelection($event,file)" 
+                            @click.shift = "addSelectionUntil($event,file)"
+                            @click.left.exact = "onFileSelected($event,file)"  
+                            @dblclick="changeRoot(file.path)"
+                            :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
+                           <q-icon name="folder" color="orange"/>
+                           <a  class='overflow-hidden'>{{ file.name }}</a>
+                       </div>
+                   </template>
+                   <template v-else>
+                      <div @click.ctrl = "addSelection($event,file)" 
+                           @click.shift = "addSelectionUntil($event,file)"
+                           @click.left.exact = "onFileSelected($event,file)" 
+                           @dblclick="$emit('open-file',file.path)"
+                           :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
+                        <q-icon name="description" color="green"/>
+                        <a >{{ file.name }}</a>
+                      </div>
+                   </template>
+                  </div>
+              </template>
+            </draggable>
          </div>
+<!--          <div class="truncate row"> 
+                  <div :class="{ 'col-md-6 col-sm-12 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }" v-for="file in files" :key="file.path">
+                   <template v-if="file.is_dir">
+                       <div @click="addSelection($event, file)"
+                            @click.ctrl = "addSelection($event,file)" 
+                            @click.shift = "addSelectionUntil($event,file)"
+                            @click.left.exact = "onFileSelected($event,file)"  
+                            @dblclick="changeRoot(file.path)"
+                            :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
+                           <q-icon name="folder" color="orange"/>
+                           <a  class='overflow-hidden'>{{ file.name }}</a>
+                       </div>
+                   </template>
+                   <template v-else>
+                      <div @click.ctrl = "addSelection($event,file)" 
+                           @click.shift = "addSelectionUntil($event,file)"
+                           @click.left.exact = "onFileSelected($event,file)" 
+                           @dblclick="$emit('open-file',file.path)"
+                           :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
+                        <q-icon name="description" color="green"/>
+                        <a >{{ file.name }}</a>
+                      </div>
+                   </template>
+                  </div>
+         </div> -->
     </div>
   </div>
 </template>
@@ -40,6 +72,7 @@
 import { defineComponent, onMounted, ref, computed, watchEffect, watch } from 'vue';
 import { useClientStore } from 'src/stores/dtiplayground.ts';
 import lodash from 'lodash';
+import draggable from 'vuedraggable';
 
 export default defineComponent({
   props: {
@@ -76,7 +109,9 @@ export default defineComponent({
       default: false,
     }
   },
-  components: {  },
+  components: {  
+    draggable,
+  },
   setup (props, ctx) {
     const $c = useClientStore();
     const files = ref<any[]>([]);

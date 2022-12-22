@@ -15,7 +15,7 @@
           <q-item dense 
                   class="q-pa-sm noselect" 
                   tag="a" 
-                  href="/">
+                  href="/#">
                 {{ APP_TITLE }} <div class="q-pa-auto text-caption" >{{ currentApplication }} </div>
 
           </q-item>

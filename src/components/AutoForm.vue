@@ -151,10 +151,14 @@ export default defineComponent({
   },
   setup (props, ctx) {
     const parameters = reactive<any>({val: null});
-    const currentTemplate = computed(() => props.template)
+    const currentTemplate = computed(() => props.template);
+    const model_computed = computed(() => props.modelValue);
     watch(parameters, (nv, ov) => {
       ctx.emit('update:modelValue', nv.val);
       ctx.emit('changedParam', nv.val);
+    });
+    watch(model_computed,(nv,ov) => {
+      parameters.val = nv;
     });
     function onDev(ev) {
       console.log(parameters.val);

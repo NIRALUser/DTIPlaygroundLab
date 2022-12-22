@@ -30,7 +30,7 @@
 
 <script lang="ts">
 
-import { defineComponent, onMounted, watch, reactive} from 'vue';
+import { defineComponent, onMounted, watch, reactive, computed} from 'vue';
 
 export default defineComponent({
   props: {
@@ -47,7 +47,11 @@ export default defineComponent({
   },
   setup (props, ctx) {
     const table = reactive<any>({val: null});
+    const model_computed = computed(() => props.modelValue);
     const selected = reactive<any>({val: []});
+    watch(model_computed, (nv, ov) => {
+      table.val = nv;
+    });
     watch(table, (nv, ov) => {
       ctx.emit('update:modelValue', table.val);
       ctx.emit('changedParam', table.val);
