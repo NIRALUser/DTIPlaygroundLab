@@ -27,6 +27,8 @@
         <q-btn flat  :disable="running" @click="newBuild">New</q-btn>
         <q-btn flat  :disable="running" @click="loadParams">Load Params</q-btn>
         <q-btn flat  :disable="running" @click="loadGreedy">Load Greedy</q-btn>
+        <q-btn flat   @click="saveParams">Save Params</q-btn>
+        <q-btn flat   @click="saveGreedy">Save Greedy</q-btn>
         <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
         <q-btn flat :color="validateAtlasParams(parameters, hbuild[0]) ? 'primary': 'red'" 
               :disable="running || !validateAtlasParams(parameters, hbuild[0])" 
@@ -66,8 +68,9 @@
                           <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters"/>
                       </q-tab-panel>
                       <q-tab-panel name="diffeomorphicatlas">
-                          <EditableTable :disable="running" v-model = "greedy" />
+                         
                           <AutoForm :disable="running" v-model="parameters.diffeomorphic_atlas" :template="template.parameter_groups.diffeomorphic_atlas.parameters" />
+                          <EditableTable title="Greedy Parameters" :disable="running" v-model = "greedy" />
                       </q-tab-panel>
                       <q-tab-panel name="finalresample">
                           <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.final_resample" :template="template.parameter_groups.final_resample.parameters" />
@@ -105,6 +108,7 @@ import { useClientStore, useInterval,useGlobalNotification , useGlobalVariables 
 import { useDMRIAtlas } from 'src/stores/dmriatlasbuilder';
 import { hbuildFromQtree, convertABParameters } from './convert';
 import { validateAtlasParams } from './validation';
+import { download, getUUID } from 'src/utils';
 
 export default defineComponent({
   components: { 
@@ -243,6 +247,18 @@ export default defineComponent({
       currentLoadingType.value = 'greedy';
       fileInput.value.$el.click();
     }
+    function saveParams(ev) {
+      const clone = JSON.parse(JSON.stringify(parameters.value));
+      const converted = convertABParameters(clone);
+      console.log(converted);
+      const s = JSON.stringify(converted, null, 2);
+      download("config.json",s);
+    }
+    function saveGreedy(ev) {
+      const data = greedy.value;
+      const s = JSON.stringify(data, null, 2);
+      download("greedy.json",s);
+    }
     function onChangedDir(ev) {
       root.value = ev;
     }
@@ -309,6 +325,8 @@ export default defineComponent({
       loadDir,
       loadParams,
       loadGreedy,
+      saveParams,
+      saveGreedy,
 
       //Execution
       generateRemoteParams,

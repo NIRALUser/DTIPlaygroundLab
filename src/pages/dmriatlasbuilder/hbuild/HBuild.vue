@@ -6,7 +6,7 @@
     <div class="row">
         <div><q-btn  :disable="disable" color="primary" flat icon="content_paste" @click="newTree">Clear HBuild</q-btn ><q-tooltip>Clear current tree</q-tooltip></div>
         <div><q-btn  :disable="disable" color="primary" flat icon="folder_open" @click="loadTree">Open HBuild</q-btn ><q-tooltip>Open hbuild file in json format</q-tooltip></div>
-        <div><q-btn  color="primary" flat icon="download"  @click="saveTree">Download HBuild</q-btn ><q-tooltip>Save tree to file in json format)</q-tooltip></div>
+        <div><q-btn  color="primary" flat icon="download"  @click="saveTree">Save HBuild</q-btn ><q-tooltip>Save tree to file in json format)</q-tooltip></div>
         <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
         
     </div>
@@ -213,7 +213,7 @@ export default defineComponent({
     function saveTree(ev) {
       const tree = hbuildFromQtree(nodes.val[0]);
       const hbuild = JSON.stringify(tree, null, 2);
-      download("hbuild.json",hbuild);
+      download("h-build.json",hbuild);
     }
     function removeFileFromNode(ev) {
       const { id, file } = ev;

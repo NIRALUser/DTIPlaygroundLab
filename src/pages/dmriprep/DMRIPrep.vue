@@ -1,11 +1,11 @@
 <template>
   <div>
-      <div class="bg-secondary text-white">
+      <div class="bg-black text-white">
         <template v-if="inProgress">
           <q-spinner-cube
             class="q-ma-xs"
             size="sm"
-            :color="'black'"
+            :color="'primary'"
           />
         </template>
         <template v-else>

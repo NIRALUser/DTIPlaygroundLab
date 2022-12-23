@@ -134,11 +134,11 @@ export default defineComponent({
     function removeFavorite(file) {
       const idx = favorites.val.indexOf(file);
       favorites.val.splice(idx,1);
-      sessionStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
+      localStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
     }
     watch(favorites,(nv,ov) => {
       console.log(nv);
-      sessionStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
+      localStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
     });
     function closeModal(save) {
       if (save) {
@@ -151,8 +151,8 @@ export default defineComponent({
       selectedFiles.value = []
     }
     onMounted(() => {
-      if (sessionStorage.getItem('favoriteFiles')) {
-        favorites.val = JSON.parse(sessionStorage.getItem('favoriteFiles'));
+      if (localStorage.getItem('favoriteFiles')) {
+        favorites.val = JSON.parse(localStorage.getItem('favoriteFiles'));
       }
     });
     return {

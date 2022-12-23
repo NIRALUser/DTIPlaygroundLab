@@ -34,21 +34,21 @@
                       dense
                       :columns="[{name:'index', align:'left', sortable: true, field:'index',label:'Index'},
                                  {name:'b_value', align:'left',sortable: true, field:'b_value', label:'B-Value'},
-                                 {name:'unit_gradient', align:'left', sortable: false, field:'unit_gradient',label:'NRRD Gradient'},
+                                 {name:'gradient', align:'left', sortable: false, field:'gradient',label:'NRRD Gradient'},
                                  {name:'nifti_gradient', align:'left', sortable: false, field:'nifti_gradient',label:'NIFTI Gradient'},
                                  {name:'baseline', align:'left', sortable: true, field:'baseline',label:'Baseline'}
                       ]"
                     >
                       <template v-slot:body="props">
-                        <q-tr :props="props" @click="slices.g = props.row.index" :class="props.row.index === slices.g ? 'bg-primary text-white' : null">
+                        <q-tr :props="props" @click="slices.g = props.row.index;onGradientChanged($event)" :class="props.row.index === slices.g ? 'bg-primary text-white' : null">
                           <q-td key="index">
                             {{ props.row.index }}
                           </q-td> 
                           <q-td key="b_value">
                             {{ props.row.b_value.toFixed(1) }}
                           </q-td>
-                          <q-td key="unit_gradient">
-                            {{ props.row.unit_gradient.map((x) => parseFloat(x.toFixed(4))) }}
+                          <q-td key="gradient">
+                            {{ props.row.gradient.map((x) => parseFloat(x.toFixed(4))) }}
                           </q-td>
                           <q-td key="nifti_gradient" >
                             {{ props.row.nifti_gradient.map((x) => parseFloat(x.toFixed(4))) }}
@@ -76,7 +76,7 @@
                           Range
                         </q-item-section>
                         <q-item-section>
-                          <q-range v-model="threshold" :min="0" :max="10000" label/>
+                          <q-range v-model="threshold" :min="imageMeta.meta.info.display_range[0]" :max="imageMeta.meta.info.display_range[1]" label/>
                         </q-item-section>
                       </q-item>
                       <q-item class="col-12">
@@ -84,7 +84,7 @@
                           Gradient Volume
                         </q-item-section>
                         <q-item-section>
-                          <q-slider v-model="slices.g" :min="0" :max="imageMeta.meta.info.sizes[3]-1" label/>
+                          <q-slider v-model="slices.g" :min="0" :max="imageMeta.meta.info.sizes[3]-1" label @update:model-value="onGradientChanged"/>
                         </q-item-section>
                       </q-item>
                     </div>
@@ -190,6 +190,12 @@ export default defineComponent({
     function onChangedDir(ev) {
       root.value = ev;
     }
+    function onGradientChanged(ev) {
+      threshold.value = {
+        min: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][0],
+        max: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][1],
+      }
+    }
     watch(selectedFile, async (nv, ov) => {
       // console.log(nv);
       if(nv) {
@@ -209,8 +215,13 @@ export default defineComponent({
           z:imageMeta.value.meta.info.image_size[2]/2,
           g:0,
         }
+        threshold.value = {
+          min: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][0],
+          max: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][1],
+        }
       }
     });
+
     onBeforeMount(async () => {
     });
     onMounted(async () => {
@@ -235,6 +246,10 @@ export default defineComponent({
       loading,
       slices,
       image_size,
+
+      // slider 
+      onGradientChanged,
+
       //
       onChangedDir,
 

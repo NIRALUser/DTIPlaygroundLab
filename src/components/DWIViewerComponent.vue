@@ -1,6 +1,6 @@
 <template>
-      <div v-if="imageMeta">
-          <img :width="width" :height="height" :src="imageUrl"/>
+      <div v-if="imageMeta" class="image-container bg-black"  :style="{ 'width':width+'px', 'height': height+'px'}">
+          <img class="image-ar"   :src="imageUrl"/>
       </div>
 </template>
 
@@ -93,5 +93,16 @@ export default defineComponent({
 
 </script>
 <style scoped>
-
+.image-container {
+  display:flex;
+  position: relative;
+  width: 100%;
+}
+.image-ar {
+  display: flex;
+  width: 100%;
+  position: relative;
+  margin: auto;
+  padding: auto;
+}
 </style>

@@ -2,7 +2,7 @@
   <div class="q-pa-md" v-if="table.val">
     <q-table
       :dense="$q.screen.lt.md"
-      :title="table.val.title"
+      :title="title"
       :rows="table.val.rows"
       :columns="table.val.columns"
       row-key="name"
@@ -41,6 +41,10 @@ export default defineComponent({
     disable: {
       type: Boolean,
       default: false
+    },
+    title: {
+      type: String,
+      default: null,
     }
   },
   components: { 
