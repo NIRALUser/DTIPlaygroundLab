@@ -79,10 +79,9 @@ export const useDMRIViewer_DWIViewer = defineStore('DWIViewerStore', {
     sliceIndex: 0,
     imageMeta: null,
     loading: false,
-    navigation: {
-      currentGradient: 0,
-      currentAxis: 0,
-      currentIndex: 0,
+    pagination: {
+      page: 1,
+      rowsPerPage: 5,
     },
   }),
   actions: {

@@ -27,11 +27,13 @@
                 caption="Gradient Vectors"
               >
                     <q-table
+                      ref="gradTable"
                       class="noselect"
                       v-if="imageMeta"
                       :rows="imageMeta.meta.gradients"
                       row-key="index"
                       dense
+                      :pagination = "pagination"
                       :columns="[{name:'index', align:'left', sortable: true, field:'index',label:'Index'},
                                  {name:'b_value', align:'left',sortable: true, field:'b_value', label:'B-Value'},
                                  {name:'gradient', align:'left', sortable: false, field:'gradient',label:'NRRD Gradient'},
@@ -178,7 +180,7 @@ export default defineComponent({
             threshold,
             loading,
             imageMeta,
-            navigation,        
+            pagination,      
             inProgress ,  
             isSuccessful, 
             selectedFile,
@@ -187,6 +189,8 @@ export default defineComponent({
     const currentFilename = ref<string>('_');
     const gradientIndex = ref<number|null>(0);
     const baseurl = ref<string|null>(null);
+    const gradTable = ref(null);
+
     function onChangedDir(ev) {
       root.value = ev;
     }
@@ -195,6 +199,10 @@ export default defineComponent({
         min: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][0],
         max: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][1],
       }
+      const pageIndex = Math.floor(slices.value.g / pagination.value.rowsPerPage + 1);
+      console.log(pageIndex);
+      pagination.value.page = pageIndex;
+      gradTable.value.setPagination(pagination.value);
     }
     watch(selectedFile, async (nv, ov) => {
       // console.log(nv);
@@ -207,8 +215,6 @@ export default defineComponent({
         currentFilename.value = imageMeta.value.filename.replaceAll('/','_');
         
         inProgress.value = false;
-        navigation.value.currentGradient = 0;
-        navigation.value.currentAxis = 0;
         slices.value = {
           x:imageMeta.value.meta.info.image_size[0]/2,
           y:imageMeta.value.meta.info.image_size[1]/2,
@@ -239,14 +245,13 @@ export default defineComponent({
       root,
       selectedFile,
       fileDialog,
-      navigation,
       imageMeta,
       threshold,
       gradientIndex,
       loading,
       slices,
       image_size,
-
+      pagination,
       // slider 
       onGradientChanged,
 
@@ -255,6 +260,9 @@ export default defineComponent({
 
       //env
       baseurl,
+
+      //refs
+      gradTable,
     }
   }
 });
