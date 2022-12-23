@@ -145,6 +145,7 @@ export default defineComponent({
         localFile.value = null;
         currentNode.value = nodes.val[0];
         dataQTree.value.expandAll();
+        $q.notify({message: 'Input (h-hbuild) parameter file loaded', timeout: 1000, color : 'green'});
       });
       await reader.readAsText(file);
     }

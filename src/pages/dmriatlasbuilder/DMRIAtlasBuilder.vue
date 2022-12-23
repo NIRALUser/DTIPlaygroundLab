@@ -63,6 +63,16 @@
                       <q-tab-panel name="hbuild">
                         <AutoForm v-if="parameters" :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.execution" :template="template.parameter_groups.execution.parameters" />
                         <HBuild :disable="running" v-model="hbuild"  :root="root" v-on:changed-dir="onChangedDir"/>
+                        <q-item dense>
+                          <q-item-section>
+                            <q-input dense v-model="execution_command" label="Commandline Execution Command"> 
+                              <template v-slot:append="props">
+                                 <q-btn flat color="primary" icon="content_copy" @click="copyExecutionCommand" label="Copy"/>
+                                 <q-tooltip>Copy execution command for command line execution</q-tooltip>
+                              </template>
+                            </q-input>
+                          </q-item-section>
+                        </q-item>
                       </q-tab-panel>
                       <q-tab-panel name="affineatlas">
                           <AutoForm :root="root" v-on:changed-dir="onChangedDir" :disable="running" v-model="parameters.affine_atlas" :template="template.parameter_groups.affine_atlas.parameters"/>
@@ -136,6 +146,7 @@ export default defineComponent({
       template_greedy,
       tab,
       root,
+      execution_command,
     } = storeToRefs($r);
     const { 
             app, 
@@ -192,7 +203,8 @@ export default defineComponent({
         config: convertABParameters(parameters.value),
         greedy: greedy.value,
       };
-      $r.generateProjectDirectory(payload);
+      await $r.generateProjectDirectory(payload);
+      execution_command.value = `dmriatlas build-dir ${parameters.value.execution.m_OutputPath}`;
     }
 
     async function execute(ev) {
@@ -207,7 +219,12 @@ export default defineComponent({
         config: convertABParameters(parameters.value),
         greedy: greedy.value,
       };
-      $r.executeDMRIAtlasBuilder(payload);
+      await $r.executeDMRIAtlasBuilder(payload);
+      execution_command.value = `dmriatlas build-dir ${parameters.value.execution.m_OutputPath}`;
+    }
+    function copyExecutionCommand(ev) {
+      navigator.clipboard.writeText(execution_command.value);
+      $q.notify({message: 'Execution command copied to Clipboard', timeout: 1000, color : 'green'});
     }
     async function openParamsFile(file) {
       if (!file) return;
@@ -216,6 +233,7 @@ export default defineComponent({
         const data = JSON.parse(ev.target.result);
         loadParameters(data);
         localFile.value = null;
+        $q.notify({message: 'Parameter file loaded', timeout: 1000, color : 'green'});
       });
       await reader.readAsText(file);
     }
@@ -226,6 +244,7 @@ export default defineComponent({
         const data = JSON.parse(ev.target.result);
         greedy.value = data;
         localFile.value = null;
+        $q.notify({message: 'Greedy parameter file loaded', timeout: 1000, color : 'green'});
       });
       await reader.readAsText(file);
     }
@@ -331,6 +350,8 @@ export default defineComponent({
       //Execution
       generateRemoteParams,
       execute,
+      execution_command,
+      copyExecutionCommand,
 
       // Elm
       localFile,

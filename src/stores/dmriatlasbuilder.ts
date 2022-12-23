@@ -16,6 +16,7 @@ export const useDMRIAtlas = defineStore('remoteDMRIAtlas', {
     outputDir: '',
     progressMessage: {},
     executionId: getUUID(),
+    execution_command: 'dmriatlas build-dir <output directory>',
     // Data 
     splitterModel: 50,
     hbuild: [],

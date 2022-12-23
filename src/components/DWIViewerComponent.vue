@@ -19,6 +19,9 @@ export default defineComponent({
     imageMeta: {
       type: Object,
     },
+    title: {
+      type: String,
+    },
     baseUrl: {
       type: String,
       default: 'http://localhost:6543/api/v1/dwi'

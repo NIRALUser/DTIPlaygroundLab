@@ -11,7 +11,7 @@
                 icon="info"
                 header-class="text-accent bg-grey-3"
                 label="DWI Header"
-                caption="Image Information"
+                dense
               >
                     <q-item dense v-for="(v,k) in imageMeta.meta.info">
                       <q-item-section side>{{k}}</q-item-section>
@@ -24,7 +24,7 @@
                 icon="gradient"
                 header-class="text-accent bg-grey-3"
                 label="Gradients"
-                caption="Gradient Vectors"
+                dense
               >
                     <q-table
                       ref="gradTable"
@@ -69,7 +69,7 @@
                   class="noselect"
                   header-class="text-accent bg-grey-3"
                   label="Image View"
-                  caption="Image Slices"
+                  dense
                   default-opened
                 >            
                     <div class="row">
@@ -93,37 +93,37 @@
                     <div class="row q-pa-none">
                       <div class="col-sm-4 col-xs-12 ">
                         <q-item>
-                          <DWIViewerComponent :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="0" :slice-index="slices.x" :gradient-index="slices.g" :threshold="threshold"/>
+                          <DWIViewerComponent title="Sagittal" :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="0" :slice-index="slices.x" :gradient-index="slices.g" :threshold="threshold"/>
                         </q-item>
                         <q-item>
                           <q-item-section side>
-                            Axis 0
+                            Sagittal
                           </q-item-section>
                           <q-item-section>
-                            <q-slider class="slider" :style="{'max-width': image_size.width - 50 + 'px'}" v-model="slices.x" :min="0" :max="imageMeta.meta.info.sizes[0]-1" label />
+                            <q-slider class="slider" :style="{'max-width': image_size.width - 70 + 'px'}" v-model="slices.x" :min="0" :max="imageMeta.meta.info.sizes[0]-1" label />
                           </q-item-section>
                         </q-item>
                       </div>
                       <div class="col-sm-4 col-xs-12   " >
                         <q-item>
-                          <DWIViewerComponent :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="1" :slice-index="slices.y" :gradient-index="slices.g" :threshold="threshold"/>
+                          <DWIViewerComponent title="Coronal" :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="1" :slice-index="slices.y" :gradient-index="slices.g" :threshold="threshold"/>
                         </q-item>
                         <q-item>
                           <q-item-section side>
-                            Axis 1
+                            Coronal
                           </q-item-section >
                           <q-item-section  >
-                            <q-slider class="slider" :style="{'max-width': image_size.width - 50 + 'px'}" v-model="slices.y" :min="0" :max="imageMeta.meta.info.sizes[1]-1" label />
+                            <q-slider class="slider" :style="{'max-width': image_size.width - 70 + 'px'}" v-model="slices.y" :min="0" :max="imageMeta.meta.info.sizes[1]-1" label />
                           </q-item-section>
                         </q-item>
                       </div>
                       <div class="col-sm-4 col-xs-12  ">
                         <q-item>
-                          <DWIViewerComponent :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="2" :slice-index="slices.z" :gradient-index="slices.g" :threshold="threshold"/>
+                          <DWIViewerComponent title="Axial" :image-meta="imageMeta" :width="image_size.width" :height="image_size.height" :base-url="`${baseurl}/api/v1/dwi`" :axis-index="2" :slice-index="slices.z" :gradient-index="slices.g" :threshold="threshold"/>
                         </q-item>
                         <q-item>
                           <q-item-section side>
-                            Axis 2
+                            Axial
                           </q-item-section>
                           <q-item-section>
                             <q-slider class="slider" :style="{'max-width': image_size.width - 50 + 'px'}" v-model="slices.z" :min="0" :max="imageMeta.meta.info.sizes[2]-1" label />
@@ -200,7 +200,6 @@ export default defineComponent({
         max: imageMeta.value.meta.info.volume_display_ranges[slices.value.g][1],
       }
       const pageIndex = Math.floor(slices.value.g / pagination.value.rowsPerPage + 1);
-      console.log(pageIndex);
       pagination.value.page = pageIndex;
       gradTable.value.setPagination(pagination.value);
     }
