@@ -21,6 +21,7 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
     status: {},
     progressMessage: {},
     executionId: getUUID(),
+    execution_command: 'dmriprep run-dir <output directory>',
   }),
   actions: {
     clearProtocols() {
@@ -56,7 +57,7 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
     },
     sortModules() {
       const default_pipeline = this.app.protocol_template.options.execution.pipeline.default_value;
-      console.log(default_pipeline);
+      //console.log(default_pipeline);
       this.app.modules.system = this.app.modules.system.sort((x,y) => {
           // console.log(default_pipeline.indexOf(x.name),x.name);
           const xv = default_pipeline.indexOf(x.name) >= 0 ? default_pipeline.indexOf(x.name) : 999;
@@ -69,10 +70,10 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
             return 0;
           }
 
-          console.log(res);
+          //console.log(res);
           return res;
       });
-      console.log(this.app.modules);
+      //console.log(this.app.modules);
     },
     async  attachLogfile() {
       const $i = useInterval();

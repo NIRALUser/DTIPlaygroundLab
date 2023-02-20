@@ -137,7 +137,7 @@ export default defineComponent({
       localStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
     }
     watch(favorites,(nv,ov) => {
-      console.log(nv);
+      //console.log(nv);
       localStorage.setItem('favoriteFiles', JSON.stringify(favorites.val));
     });
     function closeModal(save) {

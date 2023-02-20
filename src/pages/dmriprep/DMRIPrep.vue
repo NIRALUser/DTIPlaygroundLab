@@ -54,6 +54,16 @@
                     <q-tab-panels v-model="tab" animated >
                       <q-tab-panel name="settings">
                           <AutoForm :root="root" v-on:changed-dir="onChangedDir" v-if="app" :disable="inProgress" v-model="io" :template="app.protocol_template.ui.execution" v-on:changed-param="onChanged"/>
+                          <q-item dense>
+                            <q-item-section>
+                              <q-input dense v-model="execution_command" label="Commandline Execution Command"> 
+                                <template v-slot:append="props">
+                                   <q-btn flat color="primary" icon="content_copy" @click="copyExecutionCommand" label="Copy"/>
+                                   <q-tooltip>Copy execution command for command line execution</q-tooltip>
+                                </template>
+                              </q-input>
+                            </q-item-section>
+                          </q-item>
                       </q-tab-panel>
                       <q-tab-panel name="pipeline">
                         <Protocols :root="root" v-on:changed-dir="onChangedDir" :disable="inProgress" v-on:changed-param="onChanged"/>
@@ -114,6 +124,7 @@ export default defineComponent({
             isSuccessful, 
             logText, 
             logFilePath,
+            execution_command,
             progressMessage, 
             isFailed } = storeToRefs($r);
 
@@ -136,17 +147,22 @@ export default defineComponent({
     }
     async function prepare(ev) {
       await $r.prepare();
+      execution_command.value = `dmriprep run-dir ${io.value.output_directory}`;
     }
 
     async function execute(ev) {
       hasRun.value = true;
       await $r.execute();
+      execution_command.value = `dmriprep run-dir ${io.value.output_directory}`;
     }
 
     async function abort(ev) {
       await $r.cancel();
     }
-
+    function copyExecutionCommand(ev) {
+      navigator.clipboard.writeText(execution_command.value);
+      $q.notify({message: 'Execution command copied to Clipboard', timeout: 1000, color : 'green'});
+    }
     function saveCacheItemsPipeline() {
       sessionStorage.setItem('dmriprep-pipeline', JSON.stringify(pipeline.value));
     }
@@ -190,7 +206,7 @@ export default defineComponent({
       saveCacheWorkingDir();
     }
     watch(app, (nv, ov) => {
-      console.log(app.value);
+      //console.log(app.value);
     });
     watch(progressMessage, (nv,ov) => {
       $n.notify(progressMessage.value);
@@ -223,6 +239,8 @@ export default defineComponent({
       io,
       prepare,
       execute,
+      execution_command,
+      copyExecutionCommand,
       abort,
       logText,
       logFilePath,
