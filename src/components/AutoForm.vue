@@ -77,6 +77,16 @@
                         </q-tooltip>
                       </div>
                     </template>
+                    <template v-else-if="paramType(param.type) === 'filepath-remote-mult'">
+                       <div class="row">
+                        <div class="col-12">
+                           <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption" :multiple="true"/>
+                        </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
+                      </div>
+                    </template>
                     <template v-else-if="paramType(param.type) === 'dirpath-remote'">
                        <div class="row">
                         <div class="col-12">
@@ -120,6 +130,7 @@ function paramType(from): string {
     'select':'select',
     'boolean':'boolean',
     'filepath-remote':'filepath-remote',
+    'filepath-remote-mult':'filepath-remote-mult',
     'dirpath-remote':'dirpath-remote',
     'component':'component',
     'checkbox':'boolean',

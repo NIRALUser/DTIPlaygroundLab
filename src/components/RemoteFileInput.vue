@@ -1,7 +1,7 @@
 <template>
   <div>
    <RemoteFileSelectDialog :extentions="extensions" :root="rootDir" v-on:changed-dir="onChangedDir"  ref="fileDialog" :multiple="multiple" :directory="directory" v-model="selectedFiles.val"/>
-   <q-input  :disable="multiple || disable" clearable v-model = "singleFile.val" :label="label">
+   <q-input  :disable="disable" clearable v-model = "singleFile.val" :label="label">
       <template v-slot:append>
         <q-icon name="attach_file" @click="openDialog"/>
       </template>
@@ -55,16 +55,29 @@ export default defineComponent({
     const rootDir = ref<string>(props.root);
     const root_computed = computed(() => props.root);
     const model_computed = computed(() => props.modelValue);
+    const multiple_flag = computed(() => props.multiple);
 
     watch(model_computed,(nv, ov) => {
-      selectedFiles.val = [{
-        path: nv
-      }];
+      if (!nv) return;
+      const split_path = nv.split(',');
+      let path_array: any[] = []
+      split_path.forEach(path => {
+        path_array.push({ path })
+      });
+      selectedFiles.val = path_array;
     });
     watch(selectedFiles, (nv, ov) => {
       if (selectedFiles.val.length < 1) return;
-      ctx.emit('update:modelValue', selectedFiles.val[0].path);
-      singleFile.val = selectedFiles.val[0].path;
+      if (!multiple_flag.value) singleFile.val = selectedFiles.val[0].path;
+      else {
+        let mult_paths = '';
+        for (let i = 0; i < selectedFiles.val.length; i++) {
+          const path = selectedFiles.val[i].path;
+          mult_paths += path + ','
+        }
+        singleFile.val = mult_paths.slice(0, -1);
+      }
+      ctx.emit('update:modelValue', singleFile.val);
     });
     function openDialog(){
       if (singleFile.val) {
@@ -99,6 +112,7 @@ export default defineComponent({
       singleFile,
       onChangedDir,
       rootDir,
+      multiple_flag,
     };
   }
 });
