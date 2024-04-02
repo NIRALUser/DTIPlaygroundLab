@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-12 text-center noselect">
         <q-item v-for="(link, idx) in linksList" class="q-pa-none" clickable @click="pushTo(link.link)">
-          <q-item-section class="text-primary text-uppercase"> 
+          <q-item-section class="text-primary text-uppercase">
             <q-btn flat>{{ link.title}} </q-btn>
           </q-item-section>
           <q-separator/>
@@ -37,6 +37,12 @@ const linksList = [
     caption: 'DMRI Image viewer',
     icon: 'image',
     link: '/dmriviewer'
+  },
+  {
+    title: 'DMRI Fiber Profile',
+    caption: 'DMRI Fiber Profile',
+    icon: 'image',
+    link: '/dmrifiberprofile'
   },
   {
     title: 'Module Editor',

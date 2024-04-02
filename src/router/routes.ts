@@ -9,6 +9,7 @@ const routes: RouteRecordRaw[] = [
                { path: '/dmriatlasbuilder', component: () => import('pages/dmriatlasbuilder/DMRIAtlasBuilder.vue')},
                { path: '/dmriprep', component: () => import('pages/dmriprep/DMRIPrep.vue')},
                { path: '/dmriviewer', component: () => import('pages/dmriviewer/DMRIViewer.vue')},
+               { path: '/dmrifiberprofile', component: () => import('pages/dmrifiberprofile/DMRIFiberProfile.vue')},
                { path: '/moduleeditor', component: () => import('pages/moduleeditor/ModuleEditor.vue')},
     ],
   },
