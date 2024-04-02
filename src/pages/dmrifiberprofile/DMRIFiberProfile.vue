@@ -24,11 +24,11 @@
         </template>
 <!--         <q-btn flat :disable="inProgress" @click="dumpParams">Dump Params</q-btn>
         <q-btn flat :disable="inProgress" @click="removeStorage">Remove Storage</q-btn> -->
-        <q-btn flat :color="validatePrepParams(io) ? 'primary': 'red'"
-              :disable="inProgress || !validatePrepParams(io)"
+        <q-btn flat :color="validateFiberProfileParams(io) ? 'primary': 'red'"
+              :disable="inProgress || !validateFiberProfileParams(io)"
               @click="prepare">Generate Protocols</q-btn>
-        <q-btn flat :color="validatePrepParams(io) ? 'primary': 'red'"
-              :disable="inProgress || !validatePrepParams(io)"
+        <q-btn flat :color="validateFiberProfileParams(io) ? 'primary': 'red'"
+              :disable="inProgress || !validateFiberProfileParams(io)"
               @click="execute">Execute</q-btn>
         <q-btn v-if="inProgress" flat color="red"
               @click="abort">Cancel</q-btn>
@@ -95,7 +95,7 @@ import LogBox from '/src/components/LogBox.vue';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { useClientStore, useInterval,useGlobalNotification,  useGlobalVariables } from 'src/stores/dtiplayground';
-import { validatePrepParams } from './validation';
+import { validateFiberProfileParams } from './validation';
 import { useDMRIFiberProfile } from 'src/stores/dmrifiberprofile';
 
 export default defineComponent({
@@ -139,21 +139,21 @@ export default defineComponent({
     function dumpParams(ev) {
       console.log('Pipeline',pipeline.value);
       console.log('Options', io.value);
-      console.log('sessionStorage-Pipeline',JSON.parse(sessionStorage.getItem('dmriprep-pipeline')));
-      console.log('sessionStorage-IO',JSON.parse(sessionStorage.getItem('dmriprep-io')));
+      console.log('sessionStorage-Pipeline',JSON.parse(sessionStorage.getItem('dmrifiberprofile-pipeline')));
+      console.log('sessionStorage-IO',JSON.parse(sessionStorage.getItem('dmrifiberprofile-io')));
     }
     function removeStorage(ev) {
       sessionStorage.clear()
     }
     async function prepare(ev) {
       await $r.prepare();
-      execution_command.value = `dmriprep run-dir ${io.value.output_directory}`;
+      execution_command.value = `dmrifiberprofile run -o ${io.value.output_directory}`;
     }
 
     async function execute(ev) {
       hasRun.value = true;
       await $r.execute();
-      execution_command.value = `dmriprep run-dir ${io.value.output_directory}`;
+      execution_command.value = `dmrifiberprofile run -o ${io.value.output_directory}`;
     }
 
     async function abort(ev) {
@@ -164,34 +164,34 @@ export default defineComponent({
       $q.notify({message: 'Execution command copied to Clipboard', timeout: 1000, color : 'green'});
     }
     function saveCacheItemsPipeline() {
-      sessionStorage.setItem('dmriprep-pipeline', JSON.stringify(pipeline.value));
+      sessionStorage.setItem('dmrifiberprofile-pipeline', JSON.stringify(pipeline.value));
     }
     function saveCacheItemsOptions() {
-      sessionStorage.setItem('dmriprep-io', JSON.stringify(io.value));
+      sessionStorage.setItem('dmrifiberprofile-io', JSON.stringify(io.value));
     }
     function saveCacheWorkingDir() {
-      sessionStorage.setItem('dmriprep-workingdir', root.value);
+      sessionStorage.setItem('dmrifiberprofile-workingdir', root.value);
     }
     function loadCachedTabIndex() {
-      if (!('dmriprep-tab' in sessionStorage)) {
+      if (!('dmrifiberprofile-tab' in sessionStorage)) {
         tab.value = 'settings';
         return;
       }
-      tab.value = sessionStorage.getItem('dmriprep-tab');
+      tab.value = sessionStorage.getItem('dmrifiberprofile-tab');
     }
     function loadCachedItemsPipeline() {
-      if (!('dmriprep-pipeline' in sessionStorage)) return;
-      const cachedParams = JSON.parse(sessionStorage.getItem('dmriprep-pipeline'));
+      if (!('dmrifiberprofile-pipeline' in sessionStorage)) return;
+      const cachedParams = JSON.parse(sessionStorage.getItem('dmrifiberprofile-pipeline'));
       pipeline.value = cachedParams;
     }
     function loadCachedItemsOptions() {
-      if (!('dmriprep-io' in sessionStorage)) return;
-      const cachedParams = JSON.parse(sessionStorage.getItem('dmriprep-io'));
+      if (!('dmrifiberprofile-io' in sessionStorage)) return;
+      const cachedParams = JSON.parse(sessionStorage.getItem('dmrifiberprofile-io'));
       io.value = cachedParams;
     }
     function loadCachedWorkingDir() {
-      if (!('dmriprep-workingdir' in sessionStorage)) return;
-      const cachedParams = sessionStorage.getItem('dmriprep-workingdir');
+      if (!('dmrifiberprofile-workingdir' in sessionStorage)) return;
+      const cachedParams = sessionStorage.getItem('dmrifiberprofile-workingdir');
       root.value = cachedParams;
     }
     function onChanged(ev) {
@@ -212,7 +212,7 @@ export default defineComponent({
       $n.notify(progressMessage.value);
     })
     watch(tab, (nv, ov) => {
-      sessionStorage.setItem('dmriprep-tab', tab.value);
+      sessionStorage.setItem('dmrifiberprofile-tab', tab.value);
     });
     onBeforeMount(async () => {
       loadCachedItemsPipeline();
@@ -249,7 +249,7 @@ export default defineComponent({
       isSuccessful,
       isFailed,
       hasRun,
-      validatePrepParams,
+      validateFiberProfileParams,
       onChanged,
       root,
       onChangedDir,

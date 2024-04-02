@@ -4,33 +4,33 @@
         <RemoteFileSelectDialog :root="root" v-on:changed-dir="onChangedDir" ref="fileDialog" root="/" v-model="selectedFiles"/>
           <div class="row">
                 <div><q-btn  :disable="disable"
-                             color="primary" 
-                             flat 
+                             color="primary"
+                             flat
                              icon="content_paste"
                              @click="clearContent">
                          Clear</q-btn >
                          <q-tooltip>Clear current protocol pipeline</q-tooltip></div>
-                <div><q-btn  
-                            :disable="disable" 
-                            color="primary" 
-                            flat 
+                <div><q-btn
+                            :disable="disable"
+                            color="primary"
+                            flat
                             icon="folder_open"
                             @click="openFile">
                         Open
                     </q-btn ><q-tooltip>Open protocol file file in JSON format</q-tooltip></div>
-                <div><q-btn  
-                            color="primary" 
-                            flat 
+                <div><q-btn
+                            color="primary"
+                            flat
                             icon="download"
                             @click="downloadFile">
-                        Download 
+                        Download
                 </q-btn >
                 <q-input ref="fileInput" style="display:none" v-model="localFile" type="file" label="Standard" ></q-input>
                 <q-tooltip>Save protocol file in JSON format)</q-tooltip></div>
           </div>
           <q-separator/>
           <div>
-            <q-splitter 
+            <q-splitter
                 v-model="splitterModel"
                 >
                 <template v-slot:before>
@@ -52,10 +52,10 @@
                                    v-bind:clone="handleClone"
                                    >
                                       <template #item="{element: m, index}">
-                                       <q-item dense 
-                                               clickable 
+                                       <q-item dense
+                                               clickable
                                                :disable="disable"
-                                               class="q-pa-auto col-12 text-bold text-primary" 
+                                               class="q-pa-auto col-12 text-bold text-primary"
                                                @dblclick="onDoubleClick(m.name)">
                                           <q-item-section>
                                               <q-item-label>{{ m.name }}</q-item-label>
@@ -81,10 +81,10 @@
                                    :group="{name: 'modules', pull: 'clone', put:false}"
                                    >
                                       <template #item="{element: m, index}">
-                                       <q-item dense 
-                                               clickable 
+                                       <q-item dense
+                                               clickable
                                                :disable="disable"
-                                               class="q-pa-auto col-12 text-bold text-primary" 
+                                               class="q-pa-auto col-12 text-bold text-primary"
                                                @dblclick="onDoubleClick(m.name)">
                                           <q-item-section>
                                               <q-item-label>{{ m.name }}</q-item-label>
@@ -113,9 +113,9 @@
                                    @change="onPipelineChanged"
                                   >
                                     <template #item="{element:m , index: i}">
-                                       <q-item dense 
-                                               clickable 
-                                               :class="{ 'q-pa-auto col-12 text-bold': true, 'bg-primary text-white' :currentIndex === i }" 
+                                       <q-item dense
+                                               clickable
+                                               :class="{ 'q-pa-auto col-12 text-bold': true, 'bg-primary text-white' :currentIndex === i }"
                                                @click="showProtocol(i)"
                                                :key="`${i}-${m.id}`">
 <!--                                                v-for="m, i in pipeline"
@@ -174,7 +174,7 @@ import RemoteFileSelectDialog from 'src/components/RemoteFileSelectDialog.vue';
 import ConfirmDialog from 'src/components/ConfirmDialog.vue';
 import AutoForm from 'src/components/AutoForm.vue';
 import { useQuasar } from 'quasar';
-import { useDMRIPrep } from 'src/stores/dmriprep';
+import { useDMRIFiberProfile } from 'src/stores/dmrifiberprofile';
 import draggable from 'vuedraggable';
 
 export default defineComponent({
@@ -196,7 +196,7 @@ export default defineComponent({
       default: '/'
     }
   },
-  components: {  
+  components: {
     AutoForm,
     RemoteFileSelectDialog,
     ConfirmDialog,
@@ -205,8 +205,8 @@ export default defineComponent({
 
   setup (props, ctx) {
     const splitterModel = ref(70);
-    const $r = useDMRIPrep();
-    const currentIndex = ref<number | null>(Number(sessionStorage.getItem('dmriprep-currentIndex') || null));
+    const $r = useDMRIFiberProfile();
+    const currentIndex = ref<number | null>(Number(sessionStorage.getItem('dmrifiberprofile-currentIndex') || null));
     const template = ref<any | null>(null);
     const confirmed = ref<boolean>(false);
     const localFile = ref<string | null>(null);
@@ -214,13 +214,13 @@ export default defineComponent({
     const fileDialog = ref(null);
     const fileInput = ref(null);
     const confirmDialogDelete = ref(null);
-    const { app, 
+    const { app,
             pipeline,
             execution,
-            inProgress , 
-            isSuccessful, 
-            logText, 
-            progressMessage, 
+            inProgress ,
+            isSuccessful,
+            logText,
+            progressMessage,
             isFailed } = storeToRefs($r);
 
     async function openProtocolFile(file) {
@@ -269,12 +269,12 @@ export default defineComponent({
     function moveDown(idx) {
         if (idx === pipeline.value.length -1) return;
         const [ from, to ] = [ idx, idx + 1];
-        
+
         const newarr = moveArrayElement(pipeline.value, from, to);
         pipeline.value = newarr;
         onChanged();
         currentIndex.value = currentIndex.value +1;
-        
+
     }
     function onDeleteModule(ev) {
         confirmDialogDelete.value.openModal();
@@ -327,7 +327,7 @@ export default defineComponent({
         onChanged();
     }
     watch(currentIndex, (nv, ov) => {
-        sessionStorage.setItem('dmriprep-currentIndex',currentIndex.value);
+        sessionStorage.setItem('dmrifiberprofile-currentIndex',currentIndex.value);
     });
     async function showProtocol(idx) {
         currentIndex.value = idx;
