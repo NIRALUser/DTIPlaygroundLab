@@ -147,13 +147,13 @@ export default defineComponent({
     }
     async function prepare(ev) {
       await $r.prepare();
-      execution_command.value = `dmrifiberprofile run -o ${io.value.output_directory}`;
+      execution_command.value = `dmrifiberprofile run -i ${io.value.input_datasheet} -p ${io.value.output_directory}/protocols.yml`;
     }
 
     async function execute(ev) {
       hasRun.value = true;
       await $r.execute();
-      execution_command.value = `dmrifiberprofile run -o ${io.value.output_directory}`;
+      execution_command.value = `dmrifiberprofile run -i ${io.value.input_datasheet} -p ${io.value.output_directory}/protocols.yml`;
     }
 
     async function abort(ev) {
