@@ -221,7 +221,7 @@ export default defineComponent({
       await $r.initialize();
       loadCachedItemsOptions();
       loadCachedTabIndex();
-      $g.setApplicationName('Prep');
+      $g.setApplicationName('Profile');
       root.value = $g.applicationInfo.home_dir;
       loadCachedWorkingDir();
     });

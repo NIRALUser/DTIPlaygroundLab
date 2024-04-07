@@ -73,7 +73,7 @@ const linksList = [
   {
     title: 'DMRI Fiber Profile',
     caption: 'DMRI Fiber Profile',
-    icon: 'image',
+    icon: 'query_stats',
     link: '#/dmrifiberprofile'
   },
   {
