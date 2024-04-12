@@ -5,7 +5,7 @@
         Current Directory : {{ currentRoot }}
     </div>
     <div>
-          <div class="truncate row"> 
+          <div class="truncate row">
             <draggable
                :list="files"
                :group="{ name: 'files', pull: 'clone' , put:false}"
@@ -15,9 +15,10 @@
                   <div :class="{ 'col-md-6 col-sm-6 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }">
                    <template v-if="file.is_dir">
                        <div @click="addSelection($event, file)"
-                            @click.ctrl = "addSelection($event,file)" 
+                            @click.ctrl = "addSelection($event,file)"
+                           @click.meta = "addSelection($event,file)"
                             @click.shift = "addSelectionUntil($event,file)"
-                            @click.left.exact = "onFileSelected($event,file)"  
+                            @click.left.exact = "onFileSelected($event,file)"
                             @dblclick="changeRoot(file.path)"
                             :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
                            <q-icon name="folder" color="orange"/>
@@ -25,9 +26,10 @@
                        </div>
                    </template>
                    <template v-else>
-                      <div @click.ctrl = "addSelection($event,file)" 
+                      <div @click.ctrl = "addSelection($event,file)"
+                           @click.meta = "addSelection($event,file)"
                            @click.shift = "addSelectionUntil($event,file)"
-                           @click.left.exact = "onFileSelected($event,file)" 
+                           @click.left.exact = "onFileSelected($event,file)"
                            @dblclick="$emit('open-file',file.path)"
                            :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
                         <q-icon name="description" color="green"/>
@@ -38,13 +40,13 @@
               </template>
             </draggable>
          </div>
-<!--          <div class="truncate row"> 
+<!--          <div class="truncate row">
                   <div :class="{ 'col-md-6 col-sm-12 col-xs-12' : !singlecolumn, 'col-12': singlecolumn }" v-for="file in files" :key="file.path">
                    <template v-if="file.is_dir">
                        <div @click="addSelection($event, file)"
-                            @click.ctrl = "addSelection($event,file)" 
+                            @click.ctrl = "addSelection($event,file)"
                             @click.shift = "addSelectionUntil($event,file)"
-                            @click.left.exact = "onFileSelected($event,file)"  
+                            @click.left.exact = "onFileSelected($event,file)"
                             @dblclick="changeRoot(file.path)"
                             :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
                            <q-icon name="folder" color="orange"/>
@@ -52,9 +54,9 @@
                        </div>
                    </template>
                    <template v-else>
-                      <div @click.ctrl = "addSelection($event,file)" 
+                      <div @click.ctrl = "addSelection($event,file)"
                            @click.shift = "addSelectionUntil($event,file)"
-                           @click.left.exact = "onFileSelected($event,file)" 
+                           @click.left.exact = "onFileSelected($event,file)"
                            @dblclick="$emit('open-file',file.path)"
                            :class =" { 'truncate hover' : true, 'selected' : selectedFiles.map((x) => x.path).includes(file.path) }">
                         <q-icon name="description" color="green"/>
@@ -109,7 +111,7 @@ export default defineComponent({
       default: false,
     }
   },
-  components: {  
+  components: {
     draggable,
   },
   setup (props, ctx) {
@@ -141,7 +143,7 @@ export default defineComponent({
       if (!props.multiple) return
       if (!props.directory && file.is_dir) return;
       if (!file.is_real) return;
-      selectedFiles.value.push(file);
+      selectedFiles.value = selectedFiles.value.concat(file);
     }
     function addSelectionUntil(ev, file) {
       if (!props.multiple) return;
@@ -166,6 +168,7 @@ export default defineComponent({
 
     watch(selectedFiles, (n,o) => {
       ctx.emit('update:modelValue', selectedFiles.value);
+      console.log(`observed files: ${JSON.stringify(selectedFiles.value)}`)
     });
     watch(root_computed, (nv, ov)=> {
       console.log(nv);
@@ -193,8 +196,8 @@ export default defineComponent({
 
 .hover {
   color: #0000;
-  background: 
-    linear-gradient(90deg,#1095c1 50%,#000 0) 
+  background:
+    linear-gradient(90deg,#1095c1 50%,#000 0)
     var(--_p,100%)/200% no-repeat;
   -webkit-background-clip: text;
           background-clip: text;
@@ -205,7 +208,7 @@ export default defineComponent({
 }
 
 .selected {
-  
+
   opacity: 0.5;
 }
 .scroll-y {

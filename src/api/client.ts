@@ -31,7 +31,7 @@ export default class Client {
       return request;
     });
     this.axios.interceptors.response.use(function (response) {
-      // if (process.env.DEV) 
+      // if (process.env.DEV)
       console.log('Response', response);
       return response;
     }, function(error) {
@@ -59,14 +59,14 @@ export default class Client {
     });
   }
 
-  // General process 
+  // General process
   async KillByPID(pid): Promise<any> {
     return this.axios.delete(`/api/v1/process/${pid}`).then((r) => {
       return r.data;
     }).catch((e) => {
       throw e;
     });
-  }  
+  }
 
   // Image loading
   async loadImageAsCache(filename: string): Promise<any[]> {
@@ -102,7 +102,7 @@ export default class Client {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });    
+    });
   }
   async getTextWholeFile(path: string): Promise<any> {
     const payload = { params: { path }};
@@ -110,31 +110,31 @@ export default class Client {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });    
-  }  
+    });
+  }
   async getFileUrl(path: string): Promise<any> {
     const payload = { params: { path }};
     return this.axios.get('/api/v1/files/file-url', payload).then((r) => {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });    
-  }  
+    });
+  }
   async getReadMe(): Promise<any> {
     return this.axios.get('/api/v1/files/get-readme').then((r) => {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });      
+    });
   }
-  // DMRIPrep 
+  // DMRIPrep
   async DMRIPrep_getApplicationInfo(): Promise<any> {
     return this.axios.get('/api/v1/dmriprep').then((r) => {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });    
-  } 
+    });
+  }
   async DMRIPrep_getTemplate(name): Promise<any> {
     const payload = { params: { name } };
     return this.axios.get('/api/v1/dmriprep/template', payload).then((response) => {
@@ -142,7 +142,7 @@ export default class Client {
     }).catch((error) => {
       throw error
     });
-  }  
+  }
   async DMRIPrep_generateOutputDirectory(payload: any): Promise<any> {
     return this.axios.post('/api/v1/dmriprep/generate-default-protocols', payload).then((response) => {
       return response.data;
@@ -157,15 +157,15 @@ export default class Client {
     }).catch((error) => {
       throw error
     });
-  }  
+  }
   // DMRIAtlasbuilder
-  
+
   async DMRIAtlasbuilder_getApplicationTemplate(): Promise<any> {
     return this.axios.get('/api/v1/dmriatlasbuilder').then((r) => {
       return r.data;
     }).catch((e) =>{
       throw e;
-    });    
+    });
   }
   async DMRIAtlasbuilder_generateOutputDirectory(payload: any): Promise<any> {
     return this.axios.post('/api/v1/dmriatlasbuilder/parameters', payload).then((response) => {
@@ -182,4 +182,36 @@ export default class Client {
       throw error
     });
   }
+
+  // DMRIFiberProfile
+  async DMRIFiberProfile_getApplicationInfo(): Promise<any> {
+    return this.axios.get('/api/v1/dmrifiberprofile').then((r) => {
+      return r.data;
+    }).catch((e) =>{
+      throw e;
+    });
+  }
+  async DMRIFiberProfile_getTemplate(name: any): Promise<any> {
+    const payload = { params: { name } };
+    return this.axios.get('/api/v1/dmrifiberprofile/template', payload).then((response) => {
+      return response.data;
+    }).catch((error) => {
+      throw error
+    });
+  }
+  async DMRIFiberProfile_generateOutputDirectory(payload: any): Promise<any> {
+    return this.axios.post('/api/v1/dmrifiberprofile/generate-default-protocols', payload).then((response) => {
+      return response.data;
+    }).catch((error) => {
+      throw error
+    });
+  }
+  async DMRIFiberProfile_execute(payload: any): Promise<any> {
+    return this.axios.post('/api/v1/dmrifiberprofile', payload).then((response) => {
+      return response.data;
+    }).catch((error) => {
+      throw error
+    });
+  }
+
 }

@@ -65,7 +65,7 @@
                         <div class="col-12">
                            <AutoForm :disable="disable || param.disabled " v-model="parameters.val[param.name]" :template="param.components"/>
                         </div>
-                      </div>                   
+                      </div>
                     </template>
                     <template v-else-if="paramType(param.type) === 'filepath-remote'">
                        <div class="row">
@@ -95,7 +95,17 @@
                         <q-tooltip>
                             {{ param.description }}
                         </q-tooltip>
-                    </div>                       
+                    </div>
+                    </template>
+                    <template v-else-if="paramType(param.type) === 'dictionary'">
+                       <div class="row">
+                        <div class="col-12">
+                           <StringDictionaryEditor :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)"  :title="param.caption" v-model="parameters.val[param.name]"/>
+                        </div>
+                        <q-tooltip>
+                            {{ param.description }}
+                        </q-tooltip>
+                    </div>
                     </template>
                     <template v-else>
                       <div class="row">
@@ -119,6 +129,7 @@ import { defineComponent, onMounted, watch, reactive, computed} from 'vue';
 import lodash from 'lodash';
 import { conditionCheck } from 'src/utils';
 import RemoteFileInput from 'src/components/RemoteFileInput.vue';
+import StringDictionaryEditor from 'src/components/StringDictionaryEditor.vue';
 
 function paramType(from): string {
   const typemap = {
@@ -135,6 +146,7 @@ function paramType(from): string {
     'component':'component',
     'checkbox':'boolean',
     'array' : 'array',
+    'dictionary': 'dictionary'
   }
   return typemap[from];
 }
@@ -157,8 +169,9 @@ export default defineComponent({
       default: '/'
     }
   },
-  components: { 
-    RemoteFileInput, 
+  components: {
+    RemoteFileInput,
+    StringDictionaryEditor
   },
   setup (props, ctx) {
     const parameters = reactive<any>({val: null});
@@ -180,7 +193,7 @@ export default defineComponent({
     watch(currentTemplate, (nv, ov) => {
       parameters.val = props.modelValue;
     });
-    onMounted(async () => {  
+    onMounted(async () => {
       parameters.val = props.modelValue;
     });
     return {
