@@ -144,8 +144,6 @@ export default defineComponent({
       if (!props.directory && file.is_dir) return;
       if (!file.is_real) return;
       selectedFiles.value = selectedFiles.value.concat(file);
-      console.log(`selected: ${JSON.stringify(file)}`)
-      console.log(`selected files: ${JSON.stringify(selectedFiles.value)}`)
     }
     function addSelectionUntil(ev, file) {
       if (!props.multiple) return;
