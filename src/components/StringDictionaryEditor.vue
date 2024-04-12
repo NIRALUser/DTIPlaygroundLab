@@ -51,7 +51,6 @@ export default defineComponent({
 
     // Initialize rows with the modelValue provided as props
     if (props.modelValue) {
-      console.log('modelValue', Object.entries(props.modelValue));
       for (const [key, value] of Object.entries(props.modelValue)) {
         dict.rows.push({ key: key, value: value });
       }
@@ -59,12 +58,10 @@ export default defineComponent({
 
     function addRow() {
       dict.rows.value.push({ key: '', value: '' });
-      console.log(dict.rows.value)
     }
 
     watch(dict, (nv, ov) => {
       saveRow(nv);
-      console.log('rows', nv);
     });
 
 
@@ -77,7 +74,6 @@ export default defineComponent({
       }, {}));
     }
     function updateRow(props, val) {
-      console.log("UPDATE!!")
       // Find the index of the row in the rows array
       const index = rows.value.findIndex(row => row.key === props.row.key);
       if (index !== -1) {
