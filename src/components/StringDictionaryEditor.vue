@@ -1,34 +1,23 @@
 <template>
   <div>
-    <q-table
-      :rows="dict.rows"
-      :title="title"
-      row-key="key"
-      row-class="row"
-      :editable="true"
-      @row-save="saveRow"
-      :columns="columns"
-      :pagination="initialPagination"
-      :hide-bottom="true"
-    >
-    <template v-slot:body-cell="props">
-      <q-td :props="props">
-        <q-input
-          v-model="props.row[ props.col.name ]"
-          @input="val => updateRow(props, val)"
-          input-class="text-right"
-          type="text"
-          dense
-          borderless
-        />
-      </q-td>
+    <q-table :rows="dict.rows" :title="title" row-key="key" row-class="row" :editable="true" @row-save="saveRow"
+      :columns="columns" :pagination="initialPagination" :hide-bottom="true">
+      <template v-slot:body-cell="props">
+        <q-td :props="props">
+          <!-- if the column is the key column, don't make it editable -->
+          <div v-if="props.col.name === 'key'">
+            {{ props.row[props.col.name] }}
+          </div>
+          <q-input v-else v-model="props.row[props.col.name]" @input="val => updateRow(props, val)"
+            input-class="text-right" type="text" dense borderless />
+        </q-td>
       </template>
     </q-table>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, watch} from 'vue';
+import { defineComponent, reactive, ref, watch } from 'vue';
 
 export default defineComponent({
   props: {
@@ -55,10 +44,10 @@ export default defineComponent({
       }
     ];
 
-    const initialPagination =  {
-        rowsPerPage: 0
-      }
-    const dict = reactive<any>({rows: []});
+    const initialPagination = {
+      rowsPerPage: 0
+    }
+    const dict = reactive<any>({ rows: [] });
 
     // Initialize rows with the modelValue provided as props
     if (props.modelValue) {
@@ -97,7 +86,7 @@ export default defineComponent({
       }
       // Manually trigger the update method on the row
       saveRow(props.row);
-  }
+    }
 
 
     return {
@@ -113,6 +102,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.row {
-}
+.row {}
 </style>
