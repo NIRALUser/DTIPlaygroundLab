@@ -39,6 +39,12 @@ const linksList = [
     link: '/dmriviewer'
   },
   {
+    title: 'DMRI Volume Selector',
+    caption: 'DMRI Volume Selector',
+    icon: 'image',
+    link: '/dmrivolumeselectorr'
+  },
+  {
     title: 'DMRI Fiber Profile',
     caption: 'DMRI Fiber Profile',
     icon: 'image',

@@ -75,7 +75,7 @@ export const useDMRIPrep= defineStore('DMRIPrep', {
       });
       //console.log(this.app.modules);
     },
-    async  attachLogfile() {
+    async attachLogfile() {
       const $i = useInterval();
       const $c = useClientStore();
       const client = await $c.client;
