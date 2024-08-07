@@ -10,7 +10,7 @@
             <img class="image-ar" :src="elem" @click="imageSelect(index)" @click.shift="imageZoom(index)" :id="'image_' + index"/>
             <div :style="{'text-align':'center', 'font-weight':'bold', 'background-color': (selected_images?.includes(Number(index))) ? '#1976D2' : 'white'}">DWI {{ index }}</div>
             <q-item-section>
-              <q-range thumb-size="13px" @update:model-value="singleImageThresh($event, index)" :min="image_computed.meta.info.volume_display_ranges[Number(index)][0]" :max="image_computed.meta.info.volume_display_ranges[Number(index)][1]"/>
+              <q-range thumb-size="13px" @update:model-value="singleImageThresh($event, index)" :min="Math.floor(image_computed.meta.info.volume_display_ranges[index][0])" :max="Math.floor(image_computed.meta.info.volume_display_ranges[index][1])" />
             </q-item-section>
           </td>
         </tr>
@@ -97,7 +97,7 @@ function populateTable() {
     const image_url: any[] = [];
     let iter_image : any = {};
     for (let i = 0; i < props.imageMeta.meta.gradients.length; i += 1) {
-      const img_value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${i}/${props.axisIndex}/${slice_computed.value}?min=${props.imageMeta.meta.info.volume_display_ranges[i][0]}&max=${props.imageMeta.meta.info.volume_display_ranges[i][1]}`;
+      const img_value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${i}/${props.axisIndex}/${slice_computed.value}?min=${Math.floor(props.imageMeta.meta.info.volume_display_ranges[i][0])}&max=${Math.floor(props.imageMeta.meta.info.volume_display_ranges[i][1])}`;
       if (image_wh.value[0] === 0) {
         const image = new Image();
         image.onload = function() {

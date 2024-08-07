@@ -64,7 +64,7 @@ export default defineComponent({
       updateImage();
     });
     function updateImage() {
-      imageUrl.value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${props.gradientIndex}/${props.axisIndex}/${slice_computed.value}?min=${threshold_computed.value.min}&max=${threshold_computed.value.max}`;
+      imageUrl.value = `${props.baseUrl}/${props.imageMeta.filename.replaceAll('/','_')}/${props.gradientIndex}/${props.axisIndex}/${slice_computed.value}?min=${Math.floor(threshold_computed.value.min)}&max=${Math.floor(threshold_computed.value.max)}`;
     }
     watch(threshold_computed,(nv,ov) => {
       updateImage();

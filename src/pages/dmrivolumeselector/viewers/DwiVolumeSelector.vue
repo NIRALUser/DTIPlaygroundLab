@@ -39,8 +39,8 @@
                 </template>
               </q-card-actions>
               <q-card-actions style="width:50%; float:right;">
-                <q-btn align="right" :loading="prepSuccessful" :disable="prepProgress" flat label="Close" color="red" v-close-popup @click="closePrep"></q-btn>
-                <q-btn align="right" :loading="prepSuccessful" :disable="prepProgress || output_path_temp.length < 1" flat label="Execute" color="green" @click="execute"></q-btn>
+                <q-btn align="right" :loading="prepProgress" :disable="prepProgress" flat label="Close" color="red" v-close-popup @click="closePrep"></q-btn>
+                <q-btn align="right" :loading="prepProgress" :disable="prepProgress || output_path_temp.length < 1" flat label="Execute" color="green" @click="execute"></q-btn>
               </q-card-actions>
             </q-card>
           </q-dialog>
