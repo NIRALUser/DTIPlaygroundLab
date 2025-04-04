@@ -157,10 +157,18 @@ export function conditionCheck(parameters: any, conditionDict: any) {
   if (!conditionDict) return true;
   let res = true;
   const condition_keys = lodash.keys(conditionDict);
-  lodash.forEach(condition_keys, (k: string) => {
-       if (conditionDict[k] !== parameters[k]) {
-         res=false;
-       }
+  lodash.forEach(condition_keys, (k: any) => {
+    if (!conditionDict[k].includes(",")) {
+      if (conditionDict[k] !== parameters[k]) {
+        res=false;
+      }
+    } else {
+      let mult_values = conditionDict[k].split(",");
+      if (!mult_values.includes(parameters[k])) {
+        res=false;
+      }
+    }
+       
   }); 
   return res;
 }

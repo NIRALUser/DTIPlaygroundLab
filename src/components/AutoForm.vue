@@ -8,7 +8,7 @@
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)"  dense :label="param.caption"  type="number" v-model="parameters.val[param.name]"/>
                           </div>
-                          <q-tooltip>
+                          <q-tooltip v-if="param.description">
                             {{ param.description }}
                           </q-tooltip>
                       </div>
@@ -18,7 +18,7 @@
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
-                          <q-tooltip>
+                          <q-tooltip v-if="param.description">
                             {{ param.description }}
                           </q-tooltip>
                       </div>
@@ -28,7 +28,7 @@
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense  :label="param.caption"  type="text" v-model="parameters.val[param.name]"/>
                           </div>
-                          <q-tooltip>
+                          <q-tooltip v-if="param.description">
                             {{ param.description }}
                           </q-tooltip>
                       </div>
@@ -36,7 +36,7 @@
                     <template v-else-if="paramType(param.type) === 'select'">
                       <div class="row">
                         <div class="col-12">
-                           <q-select :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" map-options emit-value option-label="caption" dense :label="param.caption" :options="param.candidates"  v-model="parameters.val[param.name]">
+                           <q-select :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" map-options emit-value option-label="caption" dense :label="param.caption" :options="filterCanidates(parameters.val, param.candidates)"  v-model="parameters.val[param.name]">
                                     <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
                                       <q-item v-bind="itemProps">
                                         <q-item-section>
@@ -47,7 +47,7 @@
                                     </template>
                             </q-select>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                       </div>
@@ -56,7 +56,7 @@
                         <div class="col-12">
                            <q-checkbox :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                     </template>
@@ -72,7 +72,7 @@
                         <div class="col-12">
                            <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption"/>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                       </div>
@@ -82,7 +82,7 @@
                         <div class="col-12">
                            <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" :label="param.caption" :multiple="true"/>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                       </div>
@@ -92,7 +92,7 @@
                         <div class="col-12">
                            <RemoteFileInput :root="root" v-on:changed-dir="onChangedDir" :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" v-model="parameters.val[param.name]" directory :label="param.caption"/>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                     </div>
@@ -102,7 +102,7 @@
                         <div class="col-12">
                            <StringDictionaryEditor :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)"  :title="param.caption" v-model="parameters.val[param.name]"/>
                         </div>
-                        <q-tooltip>
+                        <q-tooltip v-if="param.description">
                             {{ param.description }}
                         </q-tooltip>
                     </div>
@@ -112,7 +112,7 @@
                           <div class="col-12">
                             <q-input :disable="disable || param.disabled || !conditionCheck(parameters.val, param.disable_if)" dense :label="param.caption" type="text" v-model="parameters.val[param.name]"/>
                           </div>
-                          <q-tooltip>
+                          <q-tooltip v-if="param.description">
                             {{ param.description }}
                           </q-tooltip>
                       </div>
@@ -190,7 +190,33 @@ export default defineComponent({
     function onChangedDir(ev) {
       ctx.emit('changed-dir', ev);
     }
+    function filterCanidates(all_params, options) {
+      const pre_filtered: String[] = [];
+      lodash.forEach(options, (arr: any) => {
+        if ("if" in arr) {
+          lodash.forEach(arr.if, (val: string, k: string) => {
+            if (!val.includes(",")) {
+              if (val === all_params[k]) {
+                pre_filtered.push(arr);
+              }
+            } else {
+              let mult_values = val.split(",");
+              if (mult_values.includes(all_params[k])) {
+                pre_filtered.push(arr);
+              }
+            }
+            
+          });
+        } else {
+          pre_filtered.push(arr);
+        }
+      })
+      console.log(pre_filtered);
+      return pre_filtered
+    }
+
     watch(currentTemplate, (nv, ov) => {
+      console.log(parameters.val);
       parameters.val = props.modelValue;
     });
     onMounted(async () => {
@@ -202,6 +228,7 @@ export default defineComponent({
       conditionCheck,
       paramType,
       onChangedDir,
+      filterCanidates,
 
     };
   }
